@@ -253,6 +253,19 @@
 .drillnote{font-size:10.5px;color:var(--slate);margin-top:14px;border-top:1px solid var(--line);padding-top:10px;line-height:1.5;}
 #tool .researchbtn{font-size:10.5px;color:#fff;background:var(--gold);border:none;font-weight:600;margin-top:5px;border-radius:5px;padding:5px 9px;cursor:pointer;}
 #tool .researchbtn:hover{background:var(--gold-bright);}
+.drilltools{margin-top:16px;}
+.printbtn{background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;}
+.printbtn:hover{background:var(--gold-bright);}
+.printonly{display:none;}
+@media print{
+  body.printing>*{display:none !important;}
+  body.printing #drill{display:block !important;position:absolute;inset:0;background:#fff;padding:0;}
+  body.printing .drillpanel{box-shadow:none;border-radius:0;border-top:none;max-height:none;width:100%;overflow:visible;padding:0 6px;}
+  body.printing .drillclose,body.printing .rerun,body.printing .drilltools,body.printing .drillnote{display:none !important;}
+  body.printing .printonly{display:block;font-size:11px;color:var(--slate);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  body.printing .drillcols{grid-template-columns:1fr 1fr;}
+  body.printing .lead{break-inside:avoid;}
+}
 
 </style>
 </head>
@@ -647,6 +660,7 @@ var overlay=mkEl(
   '<div id="drill" class="drilloverlay">'+
     '<div class="drillpanel">'+
       '<button class="drillclose" aria-label="Close">&times;</button>'+
+      '<div class="printonly" id="printmeta"></div>'+
       '<div id="drillhead"></div>'+
       '<div class="drillcols">'+
         '<div class="drillcol">'+
@@ -660,6 +674,7 @@ var overlay=mkEl(
           '<button class="rerun" id="ccrerun">Re-run college search</button>'+
         '</div>'+
       '</div>'+
+      '<div class="drilltools"><button class="printbtn" id="drillprint">Print / save market summary</button></div>'+
       '<div class="drillnote">Each open fires two live searches (employers, colleges) through your Cloudflare Worker. Leads are starting points, confirm before outreach.</div>'+
     '</div>'+
   '</div>'
@@ -685,6 +700,8 @@ function openDrill(c,st){
       '<span class="dh-chip '+(olliWhite?"ok":"no")+'">'+(olliWhite?"OLLI white space":"local OLLI")+'</span>'+
     '</div>';
   overlay.classList.add("open");
+  var d=new Date().toLocaleDateString();
+  document.getElementById("printmeta").innerHTML="PSC National Connection Tour &mdash; Market summary &middot; "+esc(r.city)+", "+esc(r.state)+" &middot; "+d;
   runEmp(r); runCC(r);
 }
 
@@ -716,15 +733,16 @@ function parseJSON(txt){
 
 var EMP_RULES=
 "We are the University of Denver College of Professional Studies (PSC). We want LOCAL employers in and around the named metro whose employees we can reach (telling the employer our offering exists, plus LinkedIn outreach to employees) to enroll in PSC bachelor's-completion and master's programs at a discounted rate. Selection rules: "+
-"(1) AVOID companies that partner with Guild Education, or any closed-network education-benefit administrator, because their employees can only spend the benefit inside that network and PSC cannot be the destination school. Prefer employers NOT routed through such a network. "+
-"(2) The employer should advertise or offer tuition reimbursement of at least $5,250 per year. "+
-"(3) Prefer locally rooted employers with a real workforce presence in the metro (headquarters or a large local site), not national chains. "+
-"(4) The student only needs to be tuition-benefit ELIGIBLE to qualify for our discount; they do not have to actually use the benefit. We favor employers who clearly believe investing in their workers matters. No MOU is required, though formal partnerships are welcome.";
+"(1) MUST BE LOCAL. The employer must be headquartered in the metro, OR have a large, established local workforce/site there. Do NOT return large national corporations headquartered elsewhere that merely have a branch office in the metro. Concretely, EXCLUDE national giants such as Lockheed Martin, Amazon, Walmart, Target, UnitedHealth, and similar Fortune-500-scale employers. Favor locally or regionally headquartered mid-size employers. "+
+"(2) AVOID companies likely to run tuition benefits through Guild Education or any closed-network education-benefit platform (which includes most very large national employers), because their employees can only spend the benefit inside that network and PSC cannot be the destination school. "+
+"(3) Prefer employers with roughly 50 to 3,000 employees; treat that as a strong preference, since very large employers are usually locked into closed networks. "+
+"(4) The employer should advertise or offer tuition reimbursement of at least $5,250 per year. "+
+"(5) The student only needs to be tuition-benefit ELIGIBLE to qualify for our discount; they do not have to actually use the benefit. We favor employers who clearly believe investing in their workers matters. No MOU is required, though formal partnerships are welcome.";
 
 function runEmp(r){
   var body=document.getElementById("empbody");
   body.innerHTML=spinner("Searching local non-Guild employers...");
-  var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 8 qualifying employers. Use web search to verify tuition-benefit details and Guild status where you can. "+
+  var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 8 qualifying employers that genuinely belong to THIS metro (locally or regionally headquartered, or with a large local workforce). Exclude any national giant headquartered elsewhere. Use web search to verify local presence, tuition-benefit details, and Guild/closed-network status where you can. "+
     "Respond with ONLY a JSON object, no prose, shaped exactly: "+
     '{"verified":[{"name":"","sector":"","benefit":"","guild":"not a Guild partner | unknown","local":"","why":"","source":""}],'+
     '"needs_confirmation":[{"name":"","sector":"","note":"what still needs checking","source":""}]}. '+
@@ -755,8 +773,9 @@ function renderEmp(d){
 
 var CC_RULES=
 "We are the University of Denver College of Professional Studies (PSC), offering a reduced-credit online bachelor's-completion degree. We want community colleges to partner with as a TRANSFER destination, where their associate graduates finish their bachelor's with PSC. Selection rules: "+
+"(0) Each result MUST be a real community college, junior college, or two-year/technical college: an open-enrollment institution whose primary offering is associate degrees and certificates. Do NOT return four-year universities, private liberal-arts colleges, or institutions that are primarily bachelor's-granting. Verify the institution type before including it. "+
 "(1) PREFER community colleges that do NOT grant their own bachelor's degrees, so PSC complements rather than competes with them. "+
-"(2) SIZE OVERRIDES the no-bachelor rule: a large multi-campus system with high transfer volume (for example Lone Star College in the Houston area) stays on the list even if it grants some bachelor's degrees, because its scale and transfer pipeline outweigh the overlap. "+
+"(2) SIZE OVERRIDES the no-bachelor rule: a large multi-campus community-college system with high transfer volume (for example Lone Star College in the Houston area) stays on the list even if it grants a few applied bachelor's degrees, because its scale and transfer pipeline outweigh the overlap. It must still be a community-college system, not a university. "+
 "(3) Work radially outward from the metro center. "+
 "(4) RURAL community colleges in the surrounding region are a PRIORITY target, since their students have few local bachelor's options. "+
 "(5) The pitch is a connection to Denver, building affinity and affection for DU.";
@@ -766,9 +785,9 @@ function runCC(r){
   body.innerHTML=spinner("Searching transfer-partner community colleges...");
   var prompt=CC_RULES+"\n\nMetro / region: "+r.city+", "+r.state+". Find up to 8 community colleges, working outward from the center and including rural colleges in the surrounding region. Use web search to verify whether each grants its own bachelor's degrees and its rough size. "+
     "Respond with ONLY a JSON object, no prose, shaped exactly: "+
-    '{"verified":[{"name":"","location":"","grants_bachelors":"no | yes (kept for size)","size":"","keep_reason":"","denver_angle":"","source":""}],'+
-    '"needs_confirmation":[{"name":"","location":"","note":"what still needs checking","source":""}]}. '+
-    "A college is verified if it is non-bachelor-granting, OR it grants bachelor's but is large enough that size overrides. Put it in needs_confirmation if you cannot confirm bachelor's status or size.";
+    '{"verified":[{"name":"","type":"community college | junior college | technical college","location":"","grants_bachelors":"no | yes (kept for size)","size":"","keep_reason":"","denver_angle":"","source":""}],'+
+    '"needs_confirmation":[{"name":"","type":"","location":"","note":"what still needs checking","source":""}]}. '+
+    "Only include an institution in verified if you have confirmed it is a community/two-year college (state which in the type field). A college is verified if it is a non-bachelor-granting two-year college, OR a community-college system large enough that size overrides. Put it in needs_confirmation if you cannot confirm it is a community college, its bachelor's status, or its size.";
   callClaude(prompt).then(function(t){
     var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
     body.innerHTML=renderCC(d);
@@ -780,6 +799,7 @@ function renderCC(d){
     var kept=(e.grants_bachelors&&/yes/i.test(e.grants_bachelors));
     h+='<div class="lead"><div class="lead-t"><span>'+esc(e.name)+'</span>'+
       (kept?'<span class="lead-tag size">kept for size</span>':'<span class="lead-tag">no bachelor\u2019s</span>')+'</div>'+
+      (e.type?'<div class="lead-l"><b>Type:</b> '+esc(e.type)+'</div>':"")+
       (e.location?'<div class="lead-l"><b>Where:</b> '+esc(e.location)+'</div>':"")+
       (e.size?'<div class="lead-l"><b>Size:</b> '+esc(e.size)+'</div>':"")+
       (e.keep_reason?'<div class="lead-l">'+esc(e.keep_reason)+'</div>':"")+
@@ -798,6 +818,11 @@ function renderCC(d){
 
 document.getElementById("emprerun").addEventListener("click",function(){if(curMarket)runEmp(curMarket);});
 document.getElementById("ccrerun").addEventListener("click",function(){if(curMarket)runCC(curMarket);});
+document.getElementById("drillprint").addEventListener("click",function(){
+  document.body.classList.add("printing");
+  window.print();
+  setTimeout(function(){document.body.classList.remove("printing");},400);
+});
 
 /* ---- end drill-down ---- */
 
