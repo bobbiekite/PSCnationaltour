@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSC National Connection Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0A2240;--navy-soft:#16345A;--gold:#A89968;--gold-bright:#C8A951;
+    --paper:#F7F5EF;--paper-deep:#EFEBE0;--ink:#20242B;--slate:#5A6472;--line:rgba(10,34,64,0.14);
+    --a:#1E6E5C;--b:#2C5E8A;--c:#9A6B2F;--pull:#1E6E5C;--gate:#9A4D3A;
+    --gold2:#C8A951;--navy2:#16345A;--pd:#EFEBE0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3',system-ui,sans-serif;line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px;}
+
+  /* TAB BAR */
+  .tabbar{position:sticky;top:0;z-index:20;background:rgba(247,245,239,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .tabbar .inner{max-width:880px;margin:0 auto;padding:0 30px;display:flex;gap:4px;}
+  .tab{appearance:none;background:none;border:none;font-family:'Source Sans 3';font-size:14px;font-weight:700;letter-spacing:0.5px;color:var(--slate);padding:16px 18px 13px;cursor:pointer;border-bottom:3px solid transparent;transition:color .15s,border-color .15s;}
+  .tab:hover{color:var(--navy);}
+  .tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+  .tab .sub{display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* COVER */
+  .cover{background:radial-gradient(1100px 460px at 82% -15%,rgba(168,153,104,0.18),transparent 60%),linear-gradient(160deg,var(--navy),#081A33);color:#fff;padding:54px 0 44px;position:relative;overflow:hidden;}
+  .cover::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--gold),var(--gold-bright) 50%,var(--gold));}
+  .eyebrow{font-weight:700;letter-spacing:3px;text-transform:uppercase;font-size:11px;color:var(--gold-bright);margin-bottom:18px;}
+  .cover h1{font-family:'Libre Baskerville',Georgia,serif;font-weight:700;font-size:38px;line-height:1.13;margin:0 0 14px;letter-spacing:-0.4px;}
+  .cover h1 em{color:var(--gold-bright);font-style:italic;}
+  .cover .sub{font-size:18px;color:rgba(255,255,255,0.85);max-width:640px;font-weight:300;}
+  .cover .who{margin-top:22px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+  .cover .meta{margin-top:28px;display:flex;gap:26px;flex-wrap:wrap;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+  .cover .meta b{color:var(--gold-bright);font-weight:600;display:block;font-size:11px;margin-bottom:3px;}
+
+  /* SECTIONS */
+  section{padding:46px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .qtag{display:inline-block;font-family:'Libre Baskerville',serif;font-style:italic;font-size:15px;color:var(--gold);margin-bottom:4px;}
+  .secnum{font-weight:900;font-size:13px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+  h2{font-family:'Libre Baskerville',Georgia,serif;font-weight:700;color:var(--navy);font-size:28px;margin:0 0 14px;letter-spacing:-0.3px;line-height:1.18;}
+  h3{font-size:17px;font-weight:700;color:var(--navy);margin:24px 0 6px;}
+  p{margin:0 0 14px;}
+  strong{color:var(--navy);font-weight:600;}
+  .lede{font-size:18px;color:var(--slate);font-weight:300;max-width:680px;margin:0 0 8px;}
+  .pull{font-family:'Libre Baskerville',serif;font-style:italic;font-size:19px;color:var(--navy);border-left:3px solid var(--gold);padding:6px 0 6px 20px;margin:8px 0 0;}
+  .pull-quote{font-family:'Libre Baskerville',serif;font-style:italic;font-size:20px;color:var(--navy);border-left:3px solid var(--gold);padding:6px 0 6px 22px;margin:26px 0;line-height:1.5;}
+
+  /* AT A GLANCE */
+  .ataglance{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .ag{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;border-top:3px solid var(--gold);}
+  .ag .n{font-family:'Libre Baskerville',serif;font-size:22px;color:var(--navy);}
+  .ag .l{font-size:12.5px;color:var(--slate);margin-top:2px;}
+
+  /* MOTION GRIDS */
+  .motions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px;}
+  .mo{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;}
+  .mo .h{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+  .mo.a .h{color:var(--a);}.mo.b .h{color:var(--b);}.mo.c .h{color:var(--c);}
+  .mo h4{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--navy);margin:0 0 6px;}
+  .mo p{font-size:13.5px;color:var(--ink);margin:0;}
+  .mo .serves{font-size:11px;color:var(--slate);margin-top:9px;border-top:1px solid var(--line);padding-top:7px;}
+  .motion{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;border-top:4px solid var(--gold);}
+  .motion .tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);}
+  .motion h4{font-family:'Libre Baskerville',serif;font-size:18px;color:var(--navy);margin:8px 0 4px;}
+  .motion .aud{font-size:13px;color:var(--slate);margin-bottom:10px;font-weight:600;}
+  .motion ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink);}
+  .motion li{margin-bottom:5px;}
+  .motion .sub2{font-size:12px;font-weight:700;color:var(--navy-soft);margin:10px 0 2px;text-transform:uppercase;letter-spacing:0.5px;}
+  .motion .prod{margin-top:13px;font-size:11px;letter-spacing:0.5px;text-transform:uppercase;color:var(--navy-soft);font-weight:700;border-top:1px solid var(--line);padding-top:9px;}
+
+  /* WHY REASONS */
+  .why{display:grid;gap:12px;margin-top:18px;}
+  .reason{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 18px;}
+  .reason b{display:block;color:var(--navy);font-size:15px;margin-bottom:2px;}
+  .reason span{font-size:14px;color:var(--ink);}
+
+  /* HOW STEPS */
+  .how-steps{counter-reset:s;margin-top:18px;display:grid;gap:12px;}
+  .step{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .step::before{counter-increment:s;content:counter(s);flex:0 0 30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .step div{font-size:14px;}.step div b{color:var(--navy);}
+
+  /* SPINE */
+  .spine{background:var(--navy);color:#fff;border-radius:12px;padding:28px 28px 24px;margin-top:26px;background-image:radial-gradient(700px 300px at 90% 0%,rgba(168,153,104,0.16),transparent 60%);}
+  .spine h3{color:var(--gold-bright);margin-top:0;}
+  .spine p{color:rgba(255,255,255,0.85);}
+  .legs{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:22px 0 8px;}
+  .leg{text-align:center;font-size:11px;}
+  .leg .dot{width:13px;height:13px;border-radius:50%;background:var(--gold-bright);margin:0 auto 9px;box-shadow:0 0 0 4px rgba(200,169,81,0.22);position:relative;z-index:2;}
+  .leg .n{font-weight:700;color:#fff;display:block;font-size:11.5px;line-height:1.3;}
+  .leg .s{color:rgba(255,255,255,0.55);font-size:10px;}
+  .legline{height:2px;background:linear-gradient(90deg,transparent,var(--gold) 8%,var(--gold) 92%,transparent);margin:-52px 6px 30px;position:relative;z-index:1;}
+
+  /* LAYERS / SCORING */
+  .layers{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
+  .layercol{border-radius:10px;padding:20px;border:1px solid var(--line);background:#fff;}
+  .layercol.pull{border-top:4px solid var(--pull);}
+  .layercol.gate{border-top:4px solid var(--gate);}
+  .layercol .lh{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+  .layercol.pull .lh{color:var(--pull);}
+  .layercol.gate .lh{color:var(--gate);}
+  .layercol .lsub{font-size:13px;color:var(--slate);margin-bottom:14px;font-weight:600;}
+  .layeritem{padding:11px 0;border-top:1px solid var(--line);}
+  .layeritem:first-of-type{border-top:none;}
+  .layeritem b{display:block;color:var(--navy);font-size:14.5px;}
+  .layeritem span{font-size:13px;color:var(--slate);}
+  table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  thead th{background:var(--navy);color:#fff;text-align:left;padding:11px 13px;font-weight:600;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;}
+  tbody td{padding:10px 13px;border-top:1px solid var(--line);vertical-align:top;}
+  tbody tr:nth-child(even){background:var(--paper-deep);}
+  td .w{font-weight:700;color:var(--navy);}
+  .formula{background:var(--navy);color:#fff;border-radius:10px;padding:20px 24px;margin:22px 0;font-size:15px;line-height:1.7;}
+  .formula code{color:var(--gold-bright);font-weight:700;font-family:'Source Sans 3';}
+  .formula .small{color:rgba(255,255,255,0.6);font-size:12.5px;}
+  .example{background:var(--paper-deep);border-radius:10px;padding:22px 24px;margin-top:22px;border:1px solid var(--line);}
+  .example h4{margin:0 0 6px;font-family:'Libre Baskerville',serif;color:var(--navy);font-size:17px;}
+
+  /* PLAYBOOK */
+  .phase{margin-top:26px;border-left:2px solid var(--gold);padding-left:22px;position:relative;}
+  .phase::before{content:"";position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--gold);}
+  .phase .when{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);}
+  .phase h3{margin:4px 0 8px;}
+  .matrix td:first-child{font-weight:600;color:var(--navy);}
+
+  /* KPI */
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-top:20px;}
+  .kc{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;border-bottom:3px solid var(--gold);}
+  .kc .m{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+  .kc ul{margin:0;padding-left:16px;font-size:13px;}
+  .kc li{margin-bottom:4px;}
+  .kpicard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;border-bottom:4px solid var(--gold);}
+  .kpicard .m{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
+  .kpicard ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;}
+  .kpicard li{margin-bottom:5px;}
+
+  /* NEXT */
+  .next{background:var(--navy);color:#fff;border-radius:12px;padding:28px 30px;margin-top:14px;}
+  .next h2{color:#fff;}
+  .next p{color:rgba(255,255,255,0.85);}
+  .next ol{margin:14px 0 0;padding-left:20px;}
+  .next li{margin-bottom:10px;color:rgba(255,255,255,0.92);}
+  .next li b{color:var(--gold-bright);}
+
+  .foot{padding:26px 0 46px;text-align:center;color:var(--slate);font-size:12px;}
+
+  @media(max-width:680px){.ataglance,.motions,.kpi,.layers{grid-template-columns:1fr;}.legs{grid-template-columns:1fr 1fr;gap:14px;}.legline{display:none;}}
+  @media print{
+    .tabbar{display:none;}
+    .panel{display:block!important;}
+    #details{page-break-before:always;}
+    body{background:#fff;font-size:12px;}
+    .cover{padding:34px 0 26px;}
+    section{padding:22px 0;page-break-inside:avoid;}
+    .ag,.mo,.motion,.reason,.step,.kc,.kpicard,.layercol,.example,.spine,.next{page-break-inside:avoid;}
+    .spine,.next,.formula{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+
+/* ===== embedded market-match tool (scoped) ===== */
+#tool .tcontrols{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:18px 0;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;box-shadow:0 1px 3px rgba(10,34,64,.05);}
+#tool .tctrl label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin-bottom:7px;}
+#tool .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+#tool .seg button{appearance:none;border:none;background:#fff;padding:7px 13px;font-family:inherit;font-size:13px;font-weight:600;color:var(--slate);cursor:pointer;border-right:1px solid var(--line);}
+#tool .seg button:last-child{border-right:none;}
+#tool .seg button.on{background:var(--navy);color:#fff;}
+#tool input[type=range]{width:160px;accent-color:var(--gold);vertical-align:middle;}
+#tool .val{font-weight:700;color:var(--navy);font-size:13px;}
+#tool .tog{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;}
+#tool .tog input{width:16px;height:16px;accent-color:var(--gold);}
+#tool .tsummary{margin-left:auto;text-align:right;font-size:12px;color:var(--slate);}
+#tool .tsummary b{color:var(--navy);font-size:15px;}
+#tool .tgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;}
+#tool .tcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(10,34,64,.04);}
+#tool .tcard h2{font-family:'Libre Baskerville',serif;font-size:15px;color:var(--navy);margin:0 0 4px;letter-spacing:0;}
+#tool .tsub{font-size:11.5px;color:var(--slate);margin-bottom:8px;}
+#tool .tlegend{font-size:11px;color:var(--slate);margin-bottom:8px;}
+#tool .tlegend b{color:var(--navy2);}
+#tool svg{width:100%;height:auto;display:block;}
+#tool .dot{cursor:pointer;}
+#tool .dot:hover{stroke:#0A2240;stroke-width:2;}
+#tool .tlist{max-height:640px;overflow-y:auto;padding-right:4px;}
+#tool .mkt{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:9px;padding:10px 12px;margin-bottom:9px;cursor:pointer;transition:box-shadow .12s;}
+#tool .mkt:hover{box-shadow:0 3px 12px rgba(10,34,64,.1);}
+#tool .mkt.sel{border-left-color:var(--navy2);box-shadow:0 3px 14px rgba(10,34,64,.16);}
+#tool .crow{display:flex;align-items:baseline;gap:8px;}
+#tool .rk{font-family:'Libre Baskerville',serif;font-size:15px;color:var(--gold);min-width:26px;}
+#tool .cty{font-weight:700;color:var(--navy);font-size:15.5px;}
+#tool .sc{margin-left:auto;font-weight:700;color:var(--navy);font-size:14px;}
+#tool .bar{height:5px;background:var(--pd);border-radius:3px;margin:7px 0;overflow:hidden;}
+#tool .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--navy));}
+#tool .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px;}
+#tool .chip{font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--pd);color:var(--navy2);}
+#tool .chip.al{background:rgba(168,153,104,.22);}
+#tool .meta{font-size:11.5px;color:var(--slate);display:flex;flex-wrap:wrap;gap:5px 12px;align-items:center;}
+#tool .badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
+#tool .badge.ok{background:rgba(30,110,92,.12);color:var(--ok);}
+#tool .badge.no{background:rgba(154,77,58,.12);color:var(--gate);}
+#tool .research{font-size:10.5px;color:var(--gold);font-weight:600;margin-top:3px;}
+#tool .tfoot{text-align:center;color:var(--slate);font-size:11px;padding:18px 0 10px;}
+#tool .approx{color:var(--gate);}
+.tip{position:fixed;pointer-events:none;background:var(--navy);color:#fff;padding:6px 10px;border-radius:7px;font-size:12px;opacity:0;transition:opacity .1s;z-index:60;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+.tip b{color:var(--gold2);}
+@media(max-width:820px){#tool .tgrid{grid-template-columns:1fr;}#tool .tsummary{margin-left:0;text-align:left;width:100%;}}
+@media print{#tool{display:none!important;}}
+/* ===== 4D Experience anchor block ===== */
+.fourd{background:var(--navy);color:#fff;border-radius:12px;padding:24px 26px;margin-top:24px;background-image:radial-gradient(600px 260px at 90% 0%,rgba(168,153,104,0.16),transparent 60%);}
+.fourd h3{color:var(--gold-bright);margin:0 0 6px;font-family:'Libre Baskerville',Georgia,serif;font-size:18px;}
+.fourd p{color:rgba(255,255,255,0.86);margin:0 0 16px;font-size:14.5px;}
+.fourd .dims{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.fourd .dim{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:16px 12px;text-align:center;color:var(--gold-bright);font-family:'Libre Baskerville',Georgia,serif;font-size:14px;line-height:1.4;display:flex;align-items:center;justify-content:center;}
+@media(max-width:680px){.fourd .dims{grid-template-columns:1fr 1fr;}}
+@media print{.fourd{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;}}
+
+/* ===== per-market employer + CC research drill-down ===== */
+.drilloverlay{position:fixed;inset:0;background:rgba(10,34,64,0.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
+.drilloverlay.open{display:flex;}
+.drillpanel{background:var(--paper);width:min(960px,96vw);max-height:90vh;overflow:auto;border-radius:14px;border-top:5px solid var(--gold-bright);box-shadow:0 20px 60px rgba(10,34,64,0.4);padding:22px 24px 18px;position:relative;}
+.drillclose{position:absolute;top:10px;right:14px;background:none;border:none;font-size:26px;line-height:1;color:var(--slate);cursor:pointer;}
+.drillclose:hover{color:var(--navy);}
+#drillhead .dh-city{font-family:Georgia,'Times New Roman',serif;font-size:24px;color:var(--navy);font-weight:700;}
+#drillhead .dh-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.dh-chip{font-size:11px;background:var(--paper-deep);border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--ink);}
+.dh-chip.ok{background:rgba(30,110,92,0.12);border-color:rgba(30,110,92,0.4);color:var(--a);}
+.dh-chip.no{background:rgba(154,77,58,0.12);border-color:rgba(154,77,58,0.4);color:var(--gate);}
+.drillcols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+@media(max-width:760px){.drillcols{grid-template-columns:1fr;}}
+.dcolhead{font-size:12px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:8px;border-bottom:2px solid var(--line);padding-bottom:6px;}
+.dbody{min-height:60px;}
+.bkt{font-size:10.5px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--a);margin:10px 0 6px;}
+.bkt.nc{color:var(--c);}
+.lead{background:#fff;border:1px solid var(--line);border-left:3px solid var(--b);border-radius:8px;padding:9px 11px;margin-bottom:8px;}
+.lead.nc{border-left-color:var(--c);background:var(--paper-deep);}
+.lead-t{font-weight:700;font-size:13.5px;color:var(--navy);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.lead-tag{font-size:10px;font-weight:600;color:var(--slate);background:var(--paper-deep);border-radius:10px;padding:2px 7px;white-space:nowrap;}
+.lead-tag.size{background:rgba(200,169,81,0.22);color:var(--c);}
+.lead-l{font-size:12px;color:var(--ink);margin-top:3px;line-height:1.42;}
+.lead-s{font-size:10.5px;color:var(--slate);margin-top:4px;word-break:break-word;}
+.rerun{margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:11.5px;padding:6px 12px;cursor:pointer;}
+.rerun:hover{background:var(--navy-soft);}
+.dspin{display:flex;align-items:center;gap:10px;color:var(--slate);font-size:12.5px;padding:10px 2px;}
+.dspinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--gold-bright);border-radius:50%;animation:dsp 0.8s linear infinite;flex:none;}
+@keyframes dsp{to{transform:rotate(360deg);}}
+.derr{font-size:12px;color:var(--gate);background:rgba(154,77,58,0.08);border:1px solid rgba(154,77,58,0.3);border-radius:8px;padding:10px;line-height:1.45;}
+.dempty{font-size:12px;color:var(--slate);padding:8px 2px;}
+.drillnote{font-size:10.5px;color:var(--slate);margin-top:14px;border-top:1px solid var(--line);padding-top:10px;line-height:1.5;}
+#tool .researchbtn{font-size:10.5px;color:#fff;background:var(--gold);border:none;font-weight:600;margin-top:5px;border-radius:5px;padding:5px 9px;cursor:pointer;}
+#tool .researchbtn:hover{background:var(--gold-bright);}
+.drilltools{margin-top:16px;}
+.printbtn{background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;}
+.printbtn:hover{background:var(--gold-bright);}
+.printonly{display:none;}
+@media print{
+  body.printing>*{display:none !important;}
+  body.printing #drill{display:block !important;position:absolute;inset:0;background:#fff;padding:0;}
+  body.printing .drillpanel{box-shadow:none;border-radius:0;border-top:none;max-height:none;width:100%;overflow:visible;padding:0 6px;}
+  body.printing .drillclose,body.printing .rerun,body.printing .drilltools,body.printing .drillnote{display:none !important;}
+  body.printing .printonly{display:block;font-size:11px;color:var(--slate);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  body.printing .drillcols{grid-template-columns:1fr 1fr;}
+  body.printing .lead{break-inside:avoid;}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="tabbar"><div class="inner">
+  <button class="tab active" data-target="exec">Executive Summary</button>
+  <button class="tab" data-target="details">Details</button>
+  <button class="tab" data-target="tool">Market-Match Tool</button>
+</div></nav>
+
+<!-- ============ TAB 1: EXECUTIVE SUMMARY ============ -->
+<div id="exec" class="panel active">
+
+  <header class="cover"><div class="wrap">
+    <div class="eyebrow">University of Denver &middot; College of Professional Studies (PSC)</div>
+    <h1>The National Connection Tour</h1>
+    <div class="sub">A briefing for leadership: what it is, why it matters, and how it works. A strategic, multi-audience field effort that extends a University of Denver college into a national community.</div>
+    <div class="who">Prepared for the Provost and colleagues &middot; Working draft</div>
+  </div></header>
+
+  <section><div class="wrap">
+    <span class="qtag">What</span>
+    <h2>A strategic series of city visits for our programs and OLLI.</h2>
+    <p class="lede">Across a year-long effort, PSC carries its full portfolio into strategically selected cities where our people already are.</p>
+    <p>In each market the tour runs three coordinated activities: meeting alumni, students, and adjunct faculty in person; placing program collateral with community colleges and employers; and reaching older learners for OLLI, including the OLLI members and alumni-OLLI members we already have across the country. It uses the PSC Professional Passport as its connective thread, with each visit anchored to a nearby National Park Service site, the same sites our learners can visit with the America the Beautiful pass included in the Passport.</p>
+    <div class="ataglance">
+      <div class="ag"><div class="n">5 + 1</div><div class="l">Five bachelor's and master's programs, plus OLLI @ DU</div></div>
+      <div class="ag"><div class="n">3</div><div class="l">Audiences engaged in every city: relationships, pipeline, lifelong learning</div></div>
+      <div class="ag"><div class="n">1 year</div><div class="l">A strategic, ongoing series of city visits, not a fixed route</div></div>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <span class="qtag">Why</span>
+    <h2>Reach, retention, and pipeline, together.</h2>
+    <p class="lede">PSC is a University of Denver college serving a national, working-adult audience online. This tour carries DU's 4D Experience to that community, and the Passport turns geography into an asset rather than a limit.</p>
+    <div class="why">
+      <div class="reason"><b>National reach, anchored at the University of Denver</b><span>Our learners are everywhere, but our presence is here. The tour puts a face and a handshake in front of alumni, students, and prospects across the country, carrying one message: "ever wanted to go to Denver, or go back? Come be connected with us."</span></div>
+      <div class="reason"><b>Operational and relational excellence</b><span>Operational, because one coordinated effort unites the data and work of advancement, student success, marketing and communications, recruitment, advising, academic affairs, and faculty affairs into a single instrument, rather than seven separate efforts. Relational, because every visit deepens real human connection at the same time. The market-match tool is the operational proof: it already fuses advancement, student, and faculty data into one decision instrument.</span></div>
+      <div class="reason"><b>Adjunct Faculty engagement at a pivotal moment</b><span>The visits let us launch the Communities of Practice in person and answer questions about the new appointments into the Adjunct Professorial Series, strengthening the adjunct faculty line we have just stood up.</span></div>
+      <div class="reason"><b>Aligned with the college's direction</b><span>The work supports our innovation and differentiation priorities, the reduced-credit ABPS pathway, and our enrollment and retention goals, using the employer tuition-benefit channel (IRS &sect;127, $5,250 per year) as a force multiplier.</span></div>
+    </div>
+    <div class="fourd">
+      <h3>Anchored to the 4D Experience</h3>
+      <p>Everything PSC builds rests on DU's four dimensions, and the educational journey at a National Park Service site is how they travel into the country: the glue that holds a national community together no matter where people live, and an instrument for lifelong learning for every population, current students and older learners alike.</p>
+      <div class="dims">
+        <div class="dim">Deepen Intellect</div>
+        <div class="dim">Discover Character</div>
+        <div class="dim">Develop Well-Being</div>
+        <div class="dim">Design Careers and Lives of Purpose</div>
+      </div>
+    </div>
+    <p class="pull">The four dimensions are the substance. The educational journey is how they travel. The Passport is the reason it all connects back to Denver.</p>
+  </div></section>
+
+  <section><div class="wrap">
+    <h2>Three Audiences.</h2>
+    <div class="motions">
+      <div class="mo a"><div class="h">Motion A</div><h4>Relationship</h4><p>Coffee and meals with alumni and students for retention and advocacy, plus in-person sessions to launch the CoP and discuss Adjunct Professorial Series appointments.</p><div class="serves">Retention &middot; advocacy &middot; adjunct faculty engagement</div></div>
+      <div class="mo b"><div class="h">Motion B</div><h4>Pipeline</h4><p>Collateral and partnership conversations with community colleges (favoring those that do not grant bachelor's degrees) and with employers offering tuition reimbursement.</p><div class="serves">ABPS &middot; BACP enrollment &middot; employer channel</div></div>
+      <div class="mo c"><div class="h">Motion C</div><h4>Lifelong Learning</h4><p>Connecting with our existing OLLI members and alumni-OLLI members in the market, plus OLLI outreach at independent living communities and chambers, led by our online offerings and the invitation to visit Denver.</p><div class="serves">OLLI members &middot; OLLI @ DU online &middot; Denver visitation</div></div>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <span class="qtag">How</span>
+    <h2>A disciplined, repeatable method.</h2>
+    <p class="lede">This is not improvised travel. It runs on a scoring model, a fixed city playbook, and a measurement frame, so every market is chosen deliberately and every visit is comparable.</p>
+    <div class="how-steps">
+      <div class="step"><div><b>Choose markets with a scoring model.</b> Five data layers rank each city. Three are magnets that attract us (alumni density, tuition-reimbursement employers, and proximity to a National Park Service anchor) and two are filters that gate a motion (a local OLLI tempers the OLLI push, and a bachelor-granting community college is screened out as a competitor).</div></div>
+      <div class="step"><div><b>Run one repeatable playbook per city.</b> A three-phase template: pre-visit outreach and booking, a one to two day visit running the three motions, and post-visit follow-up with every contact routed to the right next step.</div></div>
+      <div class="step"><div><b>Schedule with real lead time.</b> Because visits are planned well ahead, each city has a known window, which tells us when to send invitations and confirm meetings in advance.</div></div>
+      <div class="step"><div><b>Measure each motion on its own terms.</b> Relationship, pipeline, and OLLI each have their own scoreboard, so results are clear and the next visit starts smarter.</div></div>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <span class="qtag">How we will know it worked</span>
+    <h2>Measures of success.</h2>
+    <div class="kpi">
+      <div class="kc"><div class="m">Educational Journey</div><ul><li>Interest in a journey expressed</li><li>Journeys taken (participants)</li></ul></div>
+      <div class="kc"><div class="m">Relationship</div><ul><li>Alumni and students reached</li><li>Testimonials captured</li><li>Referrals generated</li><li>CoP members activated</li></ul></div>
+      <div class="kc"><div class="m">Pipeline</div><ul><li>CC partnerships opened</li><li>Employer meetings held</li><li>ABPS and BACP inquiries</li><li>New &sect;127 channels</li></ul></div>
+      <div class="kc"><div class="m">Lifelong Learning</div><ul><li>OLLI drop locations placed</li><li>Online OLLI inquiries</li><li>Chamber introductions</li><li>Denver-visit interest</li></ul></div>
+    </div>
+  </div></section>
+
+  <div class="foot">University of Denver &middot; College of Professional Studies (PSC) &middot; National Connection Tour, Executive Summary &middot; Working draft</div>
+</div>
+
+<!-- ============ TAB 2: DETAILS ============ -->
+<div id="details" class="panel">
+
+  <header class="cover"><div class="wrap">
+    <div class="eyebrow">University of Denver &middot; College of Professional Studies (PSC)</div>
+    <h1>The Connected Campus.<br><em>Strategy and city playbook.</em></h1>
+    <div class="sub">The working detail behind the summary: how cities are chosen, what happens in each one, and how we will build the selection tool. For internal partners.</div>
+    <div class="meta">
+      <div><b>Audiences</b>Alumni &middot; Students &middot; Adjunct Faculty &middot; CCs &middot; Employers &middot; OLLI</div>
+      <div><b>Method</b>Score cities, run the playbook, measure</div>
+      <div><b>Status</b>Working draft, internal</div>
+    </div>
+  </div></header>
+
+  <section><div class="wrap">
+    <div class="secnum">01 &middot; The Through-Line</div>
+    <h2>Anchored to the 4D Experience, carried by the educational journey.</h2>
+    <p class="lede">Everything PSC builds is anchored to DU's 4D Experience: Deepen Intellect, Discover Character, Develop Well-Being, and Design Careers and lives of purpose. This tour is no different. It carries those four dimensions out into the country.</p>
+    <p>The vehicle is the educational journey. Every visit anchors to a nearby National Park Service site, where a structured encounter, not tourism, delivers all four dimensions at once: Deepen through the connection to coursework, Discover through critical reflection at heritage and civic sites, Develop through nature and well-being, and Design through coaching and portfolio work. The site is not the lesson; the encounter is.</p>
+    <p>That is why the educational journey is the anchor and not a backdrop. It is the glue that holds a national, mostly online community together no matter where people live, and an instrument for continued lifelong learning for every population, current students and older OLLI learners alike. The America the Beautiful pass in the Passport puts a journey within reach of almost any city we choose.</p>
+    <p>Onto that anchor we bundle three distinct motions that share geography but serve different audiences and products. They travel together. They convert separately. Run this way, the tour is an exercise in operational and relational excellence: it unites the data and effort of many DU teams, advancement, student success, marketing and communications, recruitment, advising, academic affairs, and faculty affairs, into one instrument while deepening human connection at every stop.</p>
+    <div class="pull-quote">The four dimensions are the substance. The educational journey is how they travel. The Passport is the reason it all connects back to Denver.</div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="secnum">02 &middot; The Three Motions</div>
+    <h2>What we are actually doing in each city.</h2>
+    <p class="lede">Same visit, three jobs. Each has its own audience, its own collateral, and its own definition of a win.</p>
+    <div class="motions">
+      <div class="motion">
+        <div class="tag">Motion A</div><h4>Relationship</h4>
+        <div class="aud">Alumni &middot; students &middot; adjunct faculty</div>
+        <div class="sub2">Alumni &amp; students: retention &amp; advocacy</div>
+        <ul><li>Coffee or a meal, hear their experience in person</li><li>Capture testimonials and outcome stories on the spot</li><li>Ask for referrals, their colleagues are our applicants</li></ul>
+        <div class="sub2">Adjunct faculty: launch the CoP</div>
+        <ul><li>Launch the Communities of Practice (CoP) in person</li><li>Answer questions about their recent appointments into the Adjunct Professorial Series</li></ul>
+        <div class="prod">Serves: retention &middot; advocacy &middot; CoP launch</div>
+      </div>
+      <div class="motion">
+        <div class="tag">Motion B</div><h4>Pipeline</h4>
+        <div class="aud">Community colleges &middot; employers</div>
+        <ul><li>Drop collateral at CCs, favoring those that do <em>not</em> grant bachelor's degrees</li><li>Open transfer and articulation conversations</li><li>Meet HR and L&amp;D at employers with tuition reimbursement (IRS &sect;127, $5,250/yr)</li><li>Position ABPS (fast) and BACP (flexible) as the completion path</li></ul>
+        <div class="prod">Serves: ABPS &middot; BACP enrollment &middot; B2B channel</div>
+      </div>
+      <div class="motion">
+        <div class="tag">Motion C</div><h4>Lifelong Learning</h4>
+        <div class="aud">OLLI members &middot; alumni-OLLI members &middot; 50 plus adults</div>
+        <div class="sub2">Existing members: connect</div>
+        <ul><li>Gather with our OLLI members in the market, especially alumni who are also OLLI members, our most connected segment</li><li>Lead with <em>online</em> OLLI (our 30 percent) and the "visit or move to Denver" hook</li></ul>
+        <div class="sub2">New reach: prospect</div>
+        <ul><li>Drop OLLI collateral at independent living and chamber-type hubs</li><li>Hold off on a hard new-member push where a local OLLI already serves the market (see &sect;03)</li></ul>
+        <div class="prod">Serves: OLLI retention &middot; OLLI @ DU online &middot; Denver visitation</div>
+      </div>
+    </div>
+
+    <div class="spine">
+      <h3>The anchor that carries all three</h3>
+      <p>We pick the cities with the scoring tool, then anchor each one to a nearby National Park Service site, the Passport demo. Because almost every market has an NPS site within reach, the anchor travels with us wherever the tool points, and the visit itself becomes the demonstration.</p>
+      <p style="margin-bottom:0;">The tool also decides which of the three motions to run in each market. We will not run all three everywhere, and which cities earn a visit is an output of the scoring, not a fixed itinerary.</p>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="secnum">03 &middot; The Market-Match Tool</div>
+    <h2>Magnets pull us in. Filters keep us out.</h2>
+    <p class="lede">The five data layers do not all do the same job. Three are magnets that attract us to a market. Two are filters that gate a specific motion, which is the insight that makes the tool smart instead of a spreadsheet.</p>
+    <div class="layers">
+      <div class="layercol pull">
+        <div class="lh">+ Opportunity Magnets</div>
+        <div class="lsub">Higher means more reason to go</div>
+        <div class="layeritem"><b>People density</b><span>Geocoded alumni, current students, adjunct faculty, and OLLI members (flagging alumni-OLLI members) within roughly 60 miles. The core of Motions A and C and our referral engine.</span></div>
+        <div class="layeritem"><b>NPS anchor proximity</b><span>Distance to the nearest one or two NPS sites. Closer means a cleaner Passport demo and a stronger stop.</span></div>
+        <div class="layeritem"><b>Tuition-reimbursement employers</b><span>Count and size of employers offering &sect;127 benefits, from prior research. Fuels Motion B's B2B channel for ABPS and BACP.</span></div>
+      </div>
+      <div class="layercol gate">
+        <div class="lh">&ndash; Competition Filters</div>
+        <div class="lsub">Presence gates a motion, it does not kill the visit</div>
+        <div class="layeritem"><b>Nearby OLLI (1 of ~124)</b><span>A local OLLI in market means Motion C competes head to head. Gate OLLI scoring down and lean to online plus "come to Denver." White space (no nearby OLLI) is an OLLI green light.</span></div>
+        <div class="layeritem"><b>Bachelor-granting community colleges</b><span>CCs that grant their own bachelor's are competitors, not partners. Keep and score the <em>non</em>-bachelor CCs as transfer targets, deprioritize the rest for drops.</span></div>
+      </div>
+    </div>
+
+    <h3>The scoring model</h3>
+    <p>Each market gets a <strong>composite score</strong> built from weighted magnets, then per-motion gates are applied so the tool tells us not just <em>whether</em> to go, but <em>which plays to run</em> when we get there. Suggested starting weights, tune to our goals:</p>
+    <table>
+      <thead><tr><th>Layer</th><th>Role</th><th style="width:90px;">Weight</th><th>Drives</th></tr></thead>
+      <tbody>
+        <tr><td>People density (alumni / student / adjunct / OLLI)</td><td>Magnet</td><td><span class="w">35%</span></td><td>Motions A and C, referrals, CoP launch</td></tr>
+        <tr><td>Tuition-reimbursement employers</td><td>Magnet</td><td><span class="w">25%</span></td><td>Motion B (employer channel)</td></tr>
+        <tr><td>NPS anchor proximity</td><td>Magnet</td><td><span class="w">20%</span></td><td>Stop viability and Passport demo</td></tr>
+        <tr><td>Non-bachelor community colleges</td><td>Magnet (filtered)</td><td><span class="w">20%</span></td><td>Motion B (transfer pipeline)</td></tr>
+        <tr><td>Nearby OLLI</td><td>Gate (OLLI score)</td><td><span class="w">x0 to 1</span></td><td>Motion C eligibility</td></tr>
+        <tr><td>Bachelor-granting CCs present</td><td>Gate (CC drop list)</td><td><span class="w">filter</span></td><td>Which CCs make the drop list</td></tr>
+      </tbody>
+    </table>
+    <div class="formula">
+      <code>Market Score</code> = 0.35&middot;People + 0.25&middot;Employers + 0.20&middot;NPS + 0.20&middot;NonBachCC<br>
+      <code>OLLI sub-score</code> = (Market Score) &times; <code>OLLI gate</code> &nbsp;<span class="small">[gate = 1.0 if no OLLI within ~50 mi, 0.4 if one exists, favor online plus Denver-visit messaging either way]</span><br>
+      <span class="small">All magnet inputs are normalized 0 to 1 across the national set before weighting, so one huge metro does not swamp the model.</span>
+    </div>
+
+    <h3>From scores to a route: the corridor builder</h3>
+    <p>Ranking markets gives a shopping list, not a route. The second step keeps the high-scoring markets that sit along a drivable corridor and orders them to minimize backtracking, the same optimization used to build the mapped route. Each corridor becomes a self-contained mini-campaign we can run, measure, and repeat.</p>
+    <div class="example">
+      <h4>Worked example, how the tool reads a market</h4>
+      <p style="margin-bottom:8px;"><strong>Take a hypothetical mid-size market.</strong> Good alumni, student, and OLLI-member density (strong A and C). Several employers with &sect;127 tuition benefits (strong B-employer). Two National Park Service sites within reach (strong anchor, an easy Passport demo). A couple of non-bachelor community colleges nearby for transfer (good B-pipeline).</p>
+      <p style="margin-bottom:0;"><strong>The gate that matters:</strong> if our OLLI list flags a local Osher in that market, the OLLI prospecting score gates down, so we lean on connecting with existing members plus online OLLI and a Denver-visit invitation rather than a hard new-member push. The relationship and pipeline motions still fire fully, so the market earns a visit.</p>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="secnum">04 &middot; The Repeatable City Playbook</div>
+    <h2>One template. Run it in every market.</h2>
+    <p class="lede">Once the tool picks a city, we do not reinvent the visit. We run the same three-phase play, so the effort scales and every market is comparable.</p>
+    <div class="phase">
+      <div class="when">Phase 0 &middot; 4 to 6 weeks out</div>
+      <h3>Pre-visit: pull, segment, book, invite</h3>
+      <p>Pull the market's data slice from the tool. Segment the contact list into the three motions. Book one warm venue (coffee shop, restaurant, or an alum's workplace). Calendar the Motion B meetings (CC drops and employer HR or L&amp;D) and Motion C drops (independent living and chamber). Send personal invites: alumni and students get the "come be connected" homecoming note, adjunct faculty get the CoP launch and Adjunct Professorial Series note, employers and CCs get a partnership note.</p>
+    </div>
+    <div class="phase">
+      <div class="when">Phase 1 &middot; 1 to 2 days on the ground</div>
+      <h3>The visit: gather, demo, drop, meet</h3>
+      <p>A typical two-day stop. <strong>Evening 1:</strong> the alumni and student gathering over food (Motion A), with testimonial capture and referral asks, plus a focused adjunct faculty session to launch the CoP and answer appointment questions. <strong>Morning 2:</strong> an optional NPS Passport-journey mini-experience at the anchor site, the live demo, great for photos and content. <strong>Midday 2:</strong> CC collateral drops and a transfer conversation, then employer HR or L&amp;D meetings (Motion B). <strong>Afternoon 2:</strong> OLLI drops at independent living and the chamber (Motion C). Adjust order to the market and who is available.</p>
+    </div>
+    <h3>Collateral matrix, what goes to whom</h3>
+    <table class="matrix">
+      <thead><tr><th>Audience</th><th>Lead message</th><th>Piece</th></tr></thead>
+      <tbody>
+        <tr><td>Alumni and students</td><td>"Come back, stay connected" plus Passport</td><td>Homecoming invite, Passport story card</td></tr>
+        <tr><td>Adjunct faculty</td><td>Launch the CoP, your new appointment</td><td>CoP welcome, Adjunct Professorial Series FAQ</td></tr>
+        <tr><td>Community colleges (non-bachelor)</td><td>Finish here: ABPS and BACP transfer</td><td>Transfer and articulation flyer</td></tr>
+        <tr><td>Employers (&sect;127)</td><td>Upskill your team, $5,250 covered</td><td>Employer-advantage B2B sheet</td></tr>
+        <tr><td>Independent living and chambers</td><td>OLLI online plus visit Denver</td><td>OLLI offerings card</td></tr>
+      </tbody>
+    </table>
+    <div class="phase">
+      <div class="when">Phase 2 &middot; within 1 week back</div>
+      <h3>Post-visit: follow up, tag, route</h3>
+      <p>Send thank-yous with one clear next step per contact. Tag everyone in the CRM by motion and outcome. Route adjunct faculty leads to CoP onboarding, transfer leads to admissions, employer leads to the B2B or Guild track, and OLLI leads to enrollment. Log the results against the KPIs so the next market starts smarter.</p>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="secnum">05 &middot; How We Know It Worked</div>
+    <h2>Different motions, different scoreboards.</h2>
+    <div class="kpi">
+      <div class="kpicard"><div class="m">Educational Journey</div><ul><li>Interest in a journey expressed</li><li>People who go on a journey</li></ul></div>
+      <div class="kpicard"><div class="m">Motion A &middot; Relationship</div><ul><li>Attendees per gathering</li><li>Testimonials and stories captured</li><li>Referrals named</li><li>CoP members activated and appointment questions resolved</li></ul></div>
+      <div class="kpicard"><div class="m">Motion B &middot; Pipeline</div><ul><li>CC partnerships opened</li><li>Employer L&amp;D meetings held</li><li>ABPS and BACP inquiries and apps</li><li>New &sect;127 channels</li></ul></div>
+      <div class="kpicard"><div class="m">Motion C &middot; OLLI</div><ul><li>Drop locations placed</li><li>Online OLLI inquiries</li><li>Chamber and partner intros</li><li>Denver-visit interest</li></ul></div>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="secnum">06 &middot; Next Step</div>
+    <div class="next">
+      <h2>Hand over the data layers, build the live tool.</h2>
+      <p>This is the strategy and the playbook. The scoring model above is the spec for the interactive market-match tool. With these five layers, the model becomes a working tool that ranks markets and proposes the cities worth a visit:</p>
+      <ol>
+        <li><b>People file</b>, alumni, current students, adjunct faculty, and OLLI members (flagging alumni-OLLI members) with city or ZIP (geocodable).</li>
+        <li><b>OLLI competition map</b>, the roughly 124 national OLLIs with locations, the competition filter for Motion C, separate from our own member list above.</li>
+        <li><b>NPS sites</b>, the national site list with coordinates (the Passport anchors).</li>
+        <li><b>Employer criteria plus research</b>, prior &sect;127 and tuition-reimbursement findings and the rule for flagging new ones.</li>
+        <li><b>Community colleges</b>, area CCs with a flag for whether they grant bachelor's degrees, so we keep the non-competing ones.</li>
+      </ol>
+      <p style="margin-top:16px;margin-bottom:0;">Even a partial set is enough to stand up a first version and a pilot market list.</p>
+    </div>
+  </div></section>
+
+  <div class="foot">University of Denver &middot; College of Professional Studies (PSC) &middot; National Connection Tour, Details &middot; Working draft, internal</div>
+</div>
+
+
+<!-- ============ TAB 3: MARKET-MATCH TOOL ============ -->
+<div id="tool" class="panel">
+  <header class="cover"><div class="wrap">
+    <div class="eyebrow">University of Denver &middot; College of Professional Studies (PSC)</div>
+    <h1>Market-Match Tool</h1>
+    <div class="sub">Out-of-Colorado markets ranked by where your alumni, current students, and adjunct faculty live. Adjust the controls and the ranking and map update live.</div>
+  </div></header>
+  <div class="wrap" style="padding-bottom:0;">
+    <div class="tcontrols">
+      <div class="tctrl"><label>Alumni recency</label>
+        <div class="seg" id="seg">
+          <button data-b="alum_5">5 yr</button><button data-b="alum_10" class="on">10 yr</button>
+          <button data-b="alum_15">15 yr</button><button data-b="alumni_all">All</button>
+        </div></div>
+      <div class="tctrl"><label>People vs NPS weight &nbsp;<span class="val" id="wlbl">People 90% / NPS 10%</span></label>
+        <input type="range" id="w" min="50" max="100" value="90"></div>
+      <div class="tctrl"><label>Min people &nbsp;<span class="val" id="mplbl">5</span></label>
+        <input type="range" id="mp" min="5" max="50" value="5"></div>
+      <div class="tctrl"><label>Home state</label>
+        <span class="tog"><input type="checkbox" id="co"> Include Colorado</span></div>
+      <div class="tsummary" id="sum"></div>
+    </div>
+    <div class="tgrid">
+      <div class="tcard">
+        <h2>Where your people are</h2>
+        <div class="tsub">Each dot is a market. Size = people, color = score (gold to navy). <span class="approx">NPS proximity is approximate.</span></div>
+        <svg id="map" viewBox="0 0 620 372" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="tcard">
+        <h2>Ranked markets <span id="cnt" style="color:var(--slate);font-weight:400;"></span></h2>
+        <div class="tlegend"><b>Alum</b> = alumni in range &middot; <b>Grad / UG</b> = current students &middot; <b>Adj</b> = adjunct faculty. Employers and CCs researched per shortlisted city.</div>
+        <div class="tlist" id="list"></div>
+      </div>
+    </div>
+    <div class="tfoot">v1 &middot; People geocoded from your files. NPS proximity approximate; confirm the exact anchor per shortlisted city. Employers and CCs added during shortlisting.</div>
+  </div>
+  <div class="tip" id="tip"></div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = btn.getAttribute('data-target');
+      document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b===btn); });
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id===target); });
+      window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+    });
+  });
+</script>
+
+<script>
+(function(){
+const DATA=[{"city":"Boston area","state":"MA","lat":42.36,"lon":-71.06,"alumni_all":70,"alum_15":52,"alum_10":38,"alum_5":22,"grad":7,"ug":9,"adjunct":0,"people_total":86,"nps_mi":0,"nps_site":"Boston African American National Historic Site","olli_mi":4.0,"home":false},{"city":"Denver area","state":"CO","lat":39.74,"lon":-104.99,"alumni_all":5757,"alum_15":2893,"alum_10":1900,"alum_5":979,"grad":655,"ug":115,"adjunct":265,"people_total":6792,"nps_mi":57,"nps_site":"Rocky Mountain National Park","olli_mi":0.0,"home":true},{"city":"Fort Collins area","state":"CO","lat":40.59,"lon":-105.08,"alumni_all":258,"alum_15":132,"alum_10":73,"alum_5":36,"grad":21,"ug":5,"adjunct":8,"people_total":292,"nps_mi":36,"nps_site":"Rocky Mountain National Park","olli_mi":3.0,"home":true},{"city":"Eagle","state":"CO","lat":39.634,"lon":-106.759,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":75,"nps_site":"Rocky Mountain National Park","olli_mi":95.0,"home":true},{"city":"Los Angeles area","state":"CA","lat":34.05,"lon":-118.24,"alumni_all":335,"alum_15":297,"alum_10":273,"alum_5":219,"grad":16,"ug":14,"adjunct":3,"people_total":368,"nps_mi":31,"nps_site":"Santa Monica Mountains National Recreation Area","olli_mi":12.0,"home":false},{"city":"Philadelphia area","state":"PA","lat":39.95,"lon":-75.17,"alumni_all":86,"alum_15":68,"alum_10":45,"alum_5":16,"grad":13,"ug":12,"adjunct":2,"people_total":113,"nps_mi":1,"nps_site":"Independence National Historical Park","olli_mi":0.0,"home":false},{"city":"Twin Cities (Minneapolis)","state":"MN","lat":44.98,"lon":-93.27,"alumni_all":110,"alum_15":89,"alum_10":59,"alum_5":35,"grad":24,"ug":13,"adjunct":3,"people_total":150,"nps_mi":9,"nps_site":"Mississippi National River and Recreation Area","olli_mi":5.0,"home":false},{"city":"Jacksonville area","state":"FL","lat":30.33,"lon":-81.66,"alumni_all":52,"alum_15":42,"alum_10":28,"alum_5":15,"grad":3,"ug":5,"adjunct":1,"people_total":61,"nps_mi":14,"nps_site":"Timucuan Ecological & Historic Preserve","olli_mi":13.0,"home":false},{"city":"Phoenix area","state":"AZ","lat":33.45,"lon":-112.07,"alumni_all":154,"alum_15":81,"alum_10":53,"alum_5":32,"grad":13,"ug":15,"adjunct":5,"people_total":187,"nps_mi":44,"nps_site":"Casa Grande Ruins National Monument","olli_mi":14.0,"home":false},{"city":"Kansas City area","state":"MO","lat":39.1,"lon":-94.58,"alumni_all":64,"alum_15":41,"alum_10":27,"alum_5":12,"grad":4,"ug":14,"adjunct":1,"people_total":83,"nps_mi":12,"nps_site":"Harry S Truman National Historic Site","olli_mi":39.0,"home":false},{"city":"Miami / South Florida","state":"FL","lat":25.95,"lon":-80.2,"alumni_all":56,"alum_15":44,"alum_10":34,"alum_5":15,"grad":16,"ug":15,"adjunct":4,"people_total":91,"nps_mi":32,"nps_site":"Biscayne National Park","olli_mi":16.0,"home":false},{"city":"Atlanta area","state":"GA","lat":33.75,"lon":-84.39,"alumni_all":143,"alum_15":111,"alum_10":86,"alum_5":48,"grad":14,"ug":21,"adjunct":5,"people_total":183,"nps_mi":1,"nps_site":"Martin Luther King, Jr. National Historical Park","olli_mi":9.0,"home":false},{"city":"Austin area","state":"TX","lat":30.27,"lon":-97.74,"alumni_all":92,"alum_15":51,"alum_10":35,"alum_5":15,"grad":19,"ug":15,"adjunct":0,"people_total":126,"nps_mi":27,"nps_site":"El Camino Real de los Tejas National Historic Trail","olli_mi":1.0,"home":false},{"city":"Columbia area","state":"SC","lat":34.0,"lon":-81.03,"alumni_all":9,"alum_15":7,"alum_10":6,"alum_5":4,"grad":0,"ug":3,"adjunct":1,"people_total":13,"nps_mi":22,"nps_site":"Congaree National Park","olli_mi":102.0,"home":false},{"city":"Colorado Springs","state":"CO","lat":38.83,"lon":-104.82,"alumni_all":295,"alum_15":181,"alum_10":128,"alum_5":62,"grad":44,"ug":12,"adjunct":7,"people_total":358,"nps_mi":25,"nps_site":"Florissant Fossil Beds National Monument","olli_mi":63.0,"home":true},{"city":"Silverthorne","state":"CO","lat":39.765,"lon":-106.221,"alumni_all":9,"alum_15":3,"alum_10":2,"alum_5":1,"grad":1,"ug":0,"adjunct":0,"people_total":10,"nps_mi":49,"nps_site":"Rocky Mountain National Park","olli_mi":66.0,"home":true},{"city":"Louisville area","state":"KY","lat":38.25,"lon":-85.76,"alumni_all":23,"alum_15":18,"alum_10":16,"alum_5":3,"grad":5,"ug":5,"adjunct":0,"people_total":33,"nps_mi":68,"nps_site":"Lincoln Boyhood National Memorial","olli_mi":70.0,"home":false},{"city":"Washington DC area","state":"DC","lat":38.9,"lon":-77.04,"alumni_all":189,"alum_15":135,"alum_10":101,"alum_5":49,"grad":23,"ug":17,"adjunct":4,"people_total":233,"nps_mi":0,"nps_site":"President's Park (White House)","olli_mi":4.0,"home":false},{"city":"Portland area","state":"OR","lat":45.52,"lon":-122.68,"alumni_all":91,"alum_15":63,"alum_10":42,"alum_5":21,"grad":10,"ug":4,"adjunct":1,"people_total":106,"nps_mi":7,"nps_site":"Fort Vancouver National Historic Site","olli_mi":104.0,"home":false},{"city":"Fayetteville","state":"AR","lat":36.052,"lon":-94.153,"alumni_all":9,"alum_15":9,"alum_10":6,"alum_5":6,"grad":2,"ug":1,"adjunct":0,"people_total":12,"nps_mi":29,"nps_site":"Pea Ridge National Military Park","olli_mi":null,"home":false},{"city":"Hampton Roads (Norfolk)","state":"VA","lat":36.85,"lon":-76.29,"alumni_all":42,"alum_15":35,"alum_10":26,"alum_5":16,"grad":10,"ug":12,"adjunct":0,"people_total":64,"nps_mi":12,"nps_site":"Fort Monroe National Monument","olli_mi":12.0,"home":false},{"city":"Williamsburg","state":"VA","lat":37.318,"lon":-76.763,"alumni_all":6,"alum_15":6,"alum_10":5,"alum_5":4,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":8,"nps_site":"Historic Jamestowne Part of Colonial National Historical Park","olli_mi":1.0,"home":false},{"city":"Seattle area","state":"WA","lat":47.61,"lon":-122.33,"alumni_all":164,"alum_15":110,"alum_10":76,"alum_5":34,"grad":20,"ug":19,"adjunct":1,"people_total":204,"nps_mi":1,"nps_site":"Klondike Gold Rush - Seattle Unit National Historical Park","olli_mi":3.0,"home":false},{"city":"Nashville area","state":"TN","lat":36.16,"lon":-86.78,"alumni_all":53,"alum_15":43,"alum_10":32,"alum_5":19,"grad":5,"ug":4,"adjunct":1,"people_total":63,"nps_mi":28,"nps_site":"Stones River National Battlefield","olli_mi":1.0,"home":false},{"city":"Grand Junction","state":"CO","lat":39.016,"lon":-108.613,"alumni_all":38,"alum_15":16,"alum_10":8,"alum_5":3,"grad":1,"ug":0,"adjunct":1,"people_total":40,"nps_mi":5,"nps_site":"Colorado National Monument","olli_mi":200.0,"home":true},{"city":"Tampa Bay","state":"FL","lat":27.95,"lon":-82.46,"alumni_all":89,"alum_15":63,"alum_10":51,"alum_5":28,"grad":14,"ug":22,"adjunct":2,"people_total":127,"nps_mi":32,"nps_site":"De Soto National Memorial","olli_mi":8.0,"home":false},{"city":"Dallas-Fort Worth","state":"TX","lat":32.78,"lon":-96.8,"alumni_all":165,"alum_15":110,"alum_10":84,"alum_5":42,"grad":30,"ug":29,"adjunct":3,"people_total":227,"nps_mi":84,"nps_site":"Waco Mammoth National Monument","olli_mi":36.0,"home":false},{"city":"Milwaukee area","state":"WI","lat":43.04,"lon":-87.91,"alumni_all":22,"alum_15":17,"alum_10":12,"alum_5":7,"grad":3,"ug":2,"adjunct":0,"people_total":27,"nps_mi":94,"nps_site":"Pullman National Monument","olli_mi":3.0,"home":false},{"city":"Raleigh-Durham","state":"NC","lat":35.86,"lon":-78.78,"alumni_all":70,"alum_15":49,"alum_10":38,"alum_5":17,"grad":6,"ug":5,"adjunct":2,"people_total":83,"nps_mi":62,"nps_site":"Guilford Courthouse National Military Park","olli_mi":10.0,"home":false},{"city":"Savannah area","state":"GA","lat":32.08,"lon":-81.09,"alumni_all":24,"alum_15":21,"alum_10":17,"alum_5":5,"grad":6,"ug":1,"adjunct":0,"people_total":31,"nps_mi":10,"nps_site":"Fort Pulaski National Monument","olli_mi":23.0,"home":false},{"city":"Greenville area","state":"SC","lat":34.85,"lon":-82.39,"alumni_all":19,"alum_15":16,"alum_10":13,"alum_5":10,"grad":1,"ug":1,"adjunct":0,"people_total":21,"nps_mi":29,"nps_site":"Carl Sandburg Home National Historic Site","olli_mi":6.0,"home":false},{"city":"St Louis area","state":"MO","lat":38.63,"lon":-90.2,"alumni_all":47,"alum_15":36,"alum_10":28,"alum_5":15,"grad":4,"ug":11,"adjunct":1,"people_total":63,"nps_mi":1,"nps_site":"Gateway Arch National Park","olli_mi":7.0,"home":false},{"city":"Vero Beach","state":"FL","lat":27.6,"lon":-80.438,"alumni_all":6,"alum_15":3,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":84,"nps_site":"Canaveral National Seashore","olli_mi":87.0,"home":false},{"city":"Baton Rouge area","state":"LA","lat":30.45,"lon":-91.19,"alumni_all":7,"alum_15":5,"alum_10":3,"alum_5":3,"grad":1,"ug":3,"adjunct":0,"people_total":11,"nps_mi":75,"nps_site":"New Orleans Jazz National Historical Park","olli_mi":7.0,"home":false},{"city":"Aspen","state":"CO","lat":39.195,"lon":-106.824,"alumni_all":9,"alum_15":6,"alum_10":3,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":9,"nps_mi":57,"nps_site":"Curecanti National Recreation Area","olli_mi":105.0,"home":true},{"city":"Hartford area","state":"CT","lat":41.76,"lon":-72.69,"alumni_all":21,"alum_15":15,"alum_10":13,"alum_5":9,"grad":1,"ug":0,"adjunct":0,"people_total":22,"nps_mi":25,"nps_site":"Springfield Armory National Historic Site","olli_mi":23.0,"home":false},{"city":"Chicago area","state":"IL","lat":41.88,"lon":-87.63,"alumni_all":187,"alum_15":157,"alum_10":125,"alum_5":62,"grad":32,"ug":25,"adjunct":5,"people_total":249,"nps_mi":13,"nps_site":"Pullman National Monument","olli_mi":1.0,"home":false},{"city":"San Diego area","state":"CA","lat":32.72,"lon":-117.16,"alumni_all":72,"alum_15":51,"alum_10":39,"alum_5":21,"grad":11,"ug":10,"adjunct":0,"people_total":93,"nps_mi":6,"nps_site":"Cabrillo National Monument","olli_mi":6.0,"home":false},{"city":"Charlotte area","state":"NC","lat":35.23,"lon":-80.84,"alumni_all":74,"alum_15":57,"alum_10":41,"alum_5":26,"grad":8,"ug":15,"adjunct":2,"people_total":99,"nps_mi":31,"nps_site":"Overmountain Victory National Historic Trail","olli_mi":93.0,"home":false},{"city":"Montrose","state":"CO","lat":38.468,"lon":-107.875,"alumni_all":12,"alum_15":7,"alum_10":6,"alum_5":2,"grad":1,"ug":0,"adjunct":0,"people_total":13,"nps_mi":11,"nps_site":"Black Canyon Of The Gunnison National Park","olli_mi":178.0,"home":true},{"city":"Houston area","state":"TX","lat":29.76,"lon":-95.37,"alumni_all":135,"alum_15":88,"alum_10":68,"alum_5":39,"grad":5,"ug":17,"adjunct":5,"people_total":162,"nps_mi":76,"nps_site":"Big Thicket National Preserve","olli_mi":45.0,"home":false},{"city":"Allentown area","state":"PA","lat":40.6,"lon":-75.49,"alumni_all":19,"alum_15":13,"alum_10":9,"alum_5":4,"grad":4,"ug":5,"adjunct":0,"people_total":28,"nps_mi":30,"nps_site":"Lower Delaware National Wild and Scenic River","olli_mi":48.0,"home":false},{"city":"San Francisco area","state":"CA","lat":37.77,"lon":-122.42,"alumni_all":83,"alum_15":58,"alum_10":42,"alum_5":29,"grad":9,"ug":5,"adjunct":1,"people_total":98,"nps_mi":3,"nps_site":"San Francisco Maritime National Historical Park","olli_mi":2.0,"home":false},{"city":"Salt Lake City area","state":"UT","lat":40.76,"lon":-111.89,"alumni_all":101,"alum_15":74,"alum_10":40,"alum_5":24,"grad":9,"ug":8,"adjunct":0,"people_total":118,"nps_mi":24,"nps_site":"Timpanogos Cave National Monument","olli_mi":4.0,"home":false},{"city":"Buena Vista","state":"CO","lat":38.838,"lon":-106.147,"alumni_all":9,"alum_15":4,"alum_10":3,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":9,"nps_mi":47,"nps_site":"Florissant Fossil Beds National Monument","olli_mi":88.0,"home":true},{"city":"Pagosa Springs","state":"CO","lat":37.252,"lon":-107.038,"alumni_all":8,"alum_15":5,"alum_10":5,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":8,"nps_mi":60,"nps_site":"Aztec Ruins National Monument","olli_mi":154.0,"home":true},{"city":"Steamboat Springs","state":"CO","lat":40.485,"lon":-106.832,"alumni_all":20,"alum_15":9,"alum_10":4,"alum_5":2,"grad":1,"ug":0,"adjunct":1,"people_total":22,"nps_mi":60,"nps_site":"Rocky Mountain National Park","olli_mi":91.0,"home":true},{"city":"San Antonio area","state":"TX","lat":29.42,"lon":-98.49,"alumni_all":59,"alum_15":35,"alum_10":27,"alum_5":14,"grad":6,"ug":27,"adjunct":1,"people_total":93,"nps_mi":8,"nps_site":"San Antonio Missions National Historical Park","olli_mi":75.0,"home":false},{"city":"San Jose / South Bay","state":"CA","lat":37.34,"lon":-121.89,"alumni_all":86,"alum_15":61,"alum_10":44,"alum_5":22,"grad":5,"ug":5,"adjunct":2,"people_total":98,"nps_mi":34,"nps_site":"Eugene O'Neill National Historic Site","olli_mi":3.0,"home":false},{"city":"Farmington","state":"NM","lat":36.741,"lon":-108.18,"alumni_all":5,"alum_15":2,"alum_10":2,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":12,"nps_site":"Aztec Ruins National Monument","olli_mi":144.0,"home":false},{"city":"Reno area","state":"NV","lat":39.53,"lon":-119.81,"alumni_all":11,"alum_15":8,"alum_10":6,"alum_5":4,"grad":2,"ug":18,"adjunct":1,"people_total":32,"nps_mi":108,"nps_site":"Lassen Volcanic National Park","olli_mi":2.0,"home":false},{"city":"Des Moines area","state":"IA","lat":41.59,"lon":-93.62,"alumni_all":32,"alum_15":23,"alum_10":19,"alum_5":17,"grad":2,"ug":1,"adjunct":1,"people_total":36,"nps_mi":117,"nps_site":"Herbert Hoover National Historic Site","olli_mi":3.0,"home":false},{"city":"Albuquerque area","state":"NM","lat":35.08,"lon":-106.65,"alumni_all":53,"alum_15":27,"alum_10":24,"alum_5":12,"grad":2,"ug":1,"adjunct":0,"people_total":56,"nps_mi":7,"nps_site":"Petroglyph National Monument","olli_mi":3.0,"home":false},{"city":"Cincinnati area","state":"OH","lat":39.1,"lon":-84.51,"alumni_all":36,"alum_15":30,"alum_10":23,"alum_5":17,"grad":5,"ug":8,"adjunct":0,"people_total":49,"nps_mi":1,"nps_site":"William Howard Taft National Historic Site","olli_mi":5.0,"home":false},{"city":"Knoxville area","state":"TN","lat":35.96,"lon":-83.92,"alumni_all":21,"alum_15":11,"alum_10":8,"alum_5":3,"grad":2,"ug":3,"adjunct":1,"people_total":27,"nps_mi":34,"nps_site":"Great Smoky Mountains National Park","olli_mi":79.0,"home":false},{"city":"New York area","state":"NY","lat":40.71,"lon":-74.01,"alumni_all":208,"alum_15":170,"alum_10":132,"alum_5":77,"grad":18,"ug":14,"adjunct":2,"people_total":242,"nps_mi":0,"nps_site":"Federal Hall National Memorial","olli_mi":28.0,"home":false},{"city":"Ocala","state":"FL","lat":29.128,"lon":-82.297,"alumni_all":8,"alum_15":4,"alum_10":3,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":8,"nps_mi":76,"nps_site":"Fort Matanzas National Monument","olli_mi":74.0,"home":false},{"city":"Las Vegas area","state":"NV","lat":36.17,"lon":-115.14,"alumni_all":54,"alum_15":35,"alum_10":26,"alum_5":14,"grad":6,"ug":3,"adjunct":1,"people_total":64,"nps_mi":18,"nps_site":"Tule Springs Fossil Beds National Monument","olli_mi":0.0,"home":false},{"city":"Omaha area","state":"NE","lat":41.26,"lon":-95.93,"alumni_all":25,"alum_15":18,"alum_10":10,"alum_5":7,"grad":3,"ug":0,"adjunct":1,"people_total":29,"nps_mi":0,"nps_site":"Lewis & Clark National Historic Trail","olli_mi":51.0,"home":false},{"city":"Pittsburgh area","state":"PA","lat":40.44,"lon":-80.0,"alumni_all":34,"alum_15":27,"alum_10":18,"alum_5":13,"grad":4,"ug":1,"adjunct":0,"people_total":39,"nps_mi":46,"nps_site":"Friendship Hill National Historic Site","olli_mi":2.0,"home":false},{"city":"Inland Empire (Riverside)","state":"CA","lat":33.95,"lon":-117.4,"alumni_all":143,"alum_15":129,"alum_10":120,"alum_5":83,"grad":15,"ug":13,"adjunct":1,"people_total":172,"nps_mi":11,"nps_site":"Juan Bautista de Anza National Historic Trail","olli_mi":24.0,"home":false},{"city":"Durango","state":"CO","lat":37.287,"lon":-107.862,"alumni_all":15,"alum_15":7,"alum_10":5,"alum_5":2,"grad":1,"ug":0,"adjunct":0,"people_total":16,"nps_mi":32,"nps_site":"Aztec Ruins National Monument","olli_mi":169.0,"home":true},{"city":"Santa Fe","state":"NM","lat":35.697,"lon":-105.982,"alumni_all":28,"alum_15":11,"alum_10":4,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":28,"nps_mi":20,"nps_site":"Pecos National Historical Park","olli_mi":60.0,"home":false},{"city":"Pueblo","state":"CO","lat":38.284,"lon":-104.623,"alumni_all":30,"alum_15":17,"alum_10":9,"alum_5":4,"grad":1,"ug":3,"adjunct":0,"people_total":34,"nps_mi":56,"nps_site":"Florissant Fossil Beds National Monument","olli_mi":102.0,"home":true},{"city":"Tracy","state":"CA","lat":37.657,"lon":-121.496,"alumni_all":5,"alum_15":5,"alum_10":4,"alum_5":4,"grad":0,"ug":1,"adjunct":0,"people_total":6,"nps_mi":31,"nps_site":"Eugene O'Neill National Historic Site","olli_mi":25.0,"home":false},{"city":"New Orleans area","state":"LA","lat":29.95,"lon":-90.07,"alumni_all":16,"alum_15":14,"alum_10":8,"alum_5":6,"grad":1,"ug":1,"adjunct":0,"people_total":18,"nps_mi":1,"nps_site":"New Orleans Jazz National Historical Park","olli_mi":68.0,"home":false},{"city":"Topeka","state":"KS","lat":39.048,"lon":-95.678,"alumni_all":5,"alum_15":5,"alum_10":3,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":1,"nps_site":"Brown v. Board of Education National Historic Site","olli_mi":23.0,"home":false},{"city":"Crested Butte","state":"CO","lat":38.869,"lon":-106.962,"alumni_all":6,"alum_15":3,"alum_10":2,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":34,"nps_site":"Curecanti National Recreation Area","olli_mi":122.0,"home":true},{"city":"Dillon","state":"CO","lat":39.595,"lon":-105.974,"alumni_all":8,"alum_15":3,"alum_10":3,"alum_5":1,"grad":2,"ug":0,"adjunct":1,"people_total":11,"nps_mi":55,"nps_site":"Rocky Mountain National Park","olli_mi":54.0,"home":true},{"city":"Indianapolis area","state":"IN","lat":39.77,"lon":-86.16,"alumni_all":33,"alum_15":30,"alum_10":23,"alum_5":10,"grad":7,"ug":9,"adjunct":1,"people_total":50,"nps_mi":99,"nps_site":"William Howard Taft National Historic Site","olli_mi":70.0,"home":false},{"city":"Providence area","state":"RI","lat":41.82,"lon":-71.41,"alumni_all":17,"alum_15":11,"alum_10":11,"alum_5":6,"grad":2,"ug":1,"adjunct":0,"people_total":20,"nps_mi":1,"nps_site":"Roger Williams National Memorial","olli_mi":24.0,"home":false},{"city":"Manhattan","state":"KS","lat":39.184,"lon":-96.572,"alumni_all":5,"alum_15":4,"alum_10":1,"alum_5":0,"grad":1,"ug":0,"adjunct":1,"people_total":7,"nps_mi":49,"nps_site":"Brown v. Board of Education National Historic Site","olli_mi":71.0,"home":false},{"city":"Orlando area","state":"FL","lat":28.54,"lon":-81.38,"alumni_all":452,"alum_15":436,"alum_10":426,"alum_5":344,"grad":17,"ug":26,"adjunct":1,"people_total":496,"nps_mi":42,"nps_site":"Canaveral National Seashore","olli_mi":71.0,"home":false},{"city":"Wichita area","state":"KS","lat":37.69,"lon":-97.34,"alumni_all":8,"alum_15":4,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":8,"nps_mi":67,"nps_site":"Tallgrass Prairie National Preserve","olli_mi":109.0,"home":false},{"city":"Grand Lake","state":"CO","lat":40.229,"lon":-105.861,"alumni_all":4,"alum_15":2,"alum_10":1,"alum_5":1,"grad":1,"ug":0,"adjunct":0,"people_total":5,"nps_mi":12,"nps_site":"Rocky Mountain National Park","olli_mi":45.0,"home":true},{"city":"Prescott","state":"AZ","lat":34.496,"lon":-112.378,"alumni_all":5,"alum_15":2,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":28,"nps_site":"Tuzigoot National Monument","olli_mi":7.0,"home":false},{"city":"Missoula","state":"MT","lat":46.847,"lon":-114.17,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":1,"grad":1,"ug":1,"adjunct":0,"people_total":7,"nps_mi":74,"nps_site":"Grant-Kohrs Ranch National Historic Site","olli_mi":8.0,"home":false},{"city":"Arroyo Grande","state":"CA","lat":35.166,"lon":-120.465,"alumni_all":5,"alum_15":2,"alum_10":1,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":87,"nps_site":"Channel Islands National Park","olli_mi":106.0,"home":false},{"city":"Memphis area","state":"TN","lat":35.15,"lon":-90.05,"alumni_all":19,"alum_15":13,"alum_10":9,"alum_5":4,"grad":8,"ug":7,"adjunct":1,"people_total":35,"nps_mi":66,"nps_site":"Trail Of Tears National Historic Trail","olli_mi":190.0,"home":false},{"city":"Billings","state":"MT","lat":45.781,"lon":-108.573,"alumni_all":7,"alum_15":5,"alum_10":3,"alum_5":2,"grad":0,"ug":1,"adjunct":0,"people_total":8,"nps_mi":49,"nps_site":"Bighorn Canyon National Recreation Area","olli_mi":113.0,"home":false},{"city":"Sarasota area","state":"FL","lat":27.34,"lon":-82.53,"alumni_all":20,"alum_15":10,"alum_10":9,"alum_5":4,"grad":1,"ug":4,"adjunct":0,"people_total":25,"nps_mi":14,"nps_site":"De Soto National Memorial","olli_mi":1.0,"home":false},{"city":"Santa Maria","state":"CA","lat":34.829,"lon":-120.427,"alumni_all":4,"alum_15":2,"alum_10":2,"alum_5":0,"grad":1,"ug":0,"adjunct":0,"people_total":5,"nps_mi":65,"nps_site":"Channel Islands National Park","olli_mi":92.0,"home":false},{"city":"Lincoln","state":"NE","lat":40.8,"lon":-96.667,"alumni_all":8,"alum_15":3,"alum_10":2,"alum_5":1,"grad":1,"ug":0,"adjunct":1,"people_total":10,"nps_mi":36,"nps_site":"Homestead National Historical Park","olli_mi":2.0,"home":false},{"city":"Grand Rapids area","state":"MI","lat":42.96,"lon":-85.67,"alumni_all":10,"alum_15":5,"alum_10":3,"alum_5":2,"grad":2,"ug":0,"adjunct":0,"people_total":12,"nps_mi":117,"nps_site":"Indiana Dunes National Park","olli_mi":3.0,"home":false},{"city":"Birmingham area","state":"AL","lat":33.52,"lon":-86.81,"alumni_all":11,"alum_15":8,"alum_10":6,"alum_5":4,"grad":0,"ug":0,"adjunct":0,"people_total":11,"nps_mi":0,"nps_site":"Birmingham Civil Rights National Monument","olli_mi":47.0,"home":false},{"city":"Daytona / Palm Coast","state":"FL","lat":29.21,"lon":-81.02,"alumni_all":18,"alum_15":10,"alum_10":7,"alum_5":4,"grad":5,"ug":2,"adjunct":0,"people_total":25,"nps_mi":33,"nps_site":"Canaveral National Seashore","olli_mi":80.0,"home":false},{"city":"Lafayette","state":"LA","lat":30.236,"lon":-92.008,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":98,"nps_site":"Natchez National Historical Park","olli_mi":56.0,"home":false},{"city":"Detroit area","state":"MI","lat":42.33,"lon":-83.05,"alumni_all":63,"alum_15":51,"alum_10":47,"alum_5":33,"grad":20,"ug":10,"adjunct":1,"people_total":94,"nps_mi":33,"nps_site":"River Raisin National Battlefield Park","olli_mi":34.0,"home":false},{"city":"Richmond area","state":"VA","lat":37.54,"lon":-77.44,"alumni_all":23,"alum_15":18,"alum_10":12,"alum_5":7,"grad":8,"ug":3,"adjunct":0,"people_total":34,"nps_mi":1,"nps_site":"Maggie L Walker National Historic Site","olli_mi":1.0,"home":false},{"city":"Kennewick","state":"WA","lat":46.156,"lon":-119.264,"alumni_all":5,"alum_15":1,"alum_10":1,"alum_5":0,"grad":1,"ug":0,"adjunct":0,"people_total":6,"nps_mi":31,"nps_site":"Ice Age Floods National Geologic Trail","olli_mi":177.0,"home":false},{"city":"Breckenridge","state":"CO","lat":39.475,"lon":-106.022,"alumni_all":9,"alum_15":6,"alum_10":4,"alum_5":2,"grad":1,"ug":0,"adjunct":0,"people_total":10,"nps_mi":56,"nps_site":"Florissant Fossil Beds National Monument","olli_mi":58.0,"home":true},{"city":"Appleton","state":"WI","lat":44.242,"lon":-88.356,"alumni_all":5,"alum_15":4,"alum_10":4,"alum_5":4,"grad":1,"ug":0,"adjunct":0,"people_total":6,"nps_mi":62,"nps_site":"Ice Age National Scenic Trail","olli_mi":84.0,"home":false},{"city":"Cleveland area","state":"OH","lat":41.5,"lon":-81.69,"alumni_all":47,"alum_15":36,"alum_10":25,"alum_5":16,"grad":8,"ug":8,"adjunct":1,"people_total":64,"nps_mi":18,"nps_site":"Cuyahoga Valley National Park","olli_mi":116.0,"home":false},{"city":"Baltimore area","state":"MD","lat":39.29,"lon":-76.61,"alumni_all":68,"alum_15":50,"alum_10":36,"alum_5":16,"grad":10,"ug":7,"adjunct":0,"people_total":85,"nps_mi":0,"nps_site":"Star-Spangled Banner National Historic Trail","olli_mi":8.0,"home":false},{"city":"Bozeman","state":"MT","lat":45.669,"lon":-111.043,"alumni_all":7,"alum_15":5,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":7,"nps_mi":78,"nps_site":"Yellowstone National Park","olli_mi":7.0,"home":false},{"city":"Jefferson City","state":"MO","lat":38.546,"lon":-92.153,"alumni_all":5,"alum_15":3,"alum_10":3,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":97,"nps_site":"Ulysses S Grant National Historic Site","olli_mi":28.0,"home":false},{"city":"Rogers","state":"AR","lat":36.336,"lon":-94.115,"alumni_all":6,"alum_15":6,"alum_10":5,"alum_5":2,"grad":0,"ug":1,"adjunct":0,"people_total":7,"nps_mi":9,"nps_site":"Pea Ridge National Military Park","olli_mi":20.0,"home":false},{"city":"Estes Park","state":"CO","lat":40.366,"lon":-105.514,"alumni_all":7,"alum_15":2,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":7,"nps_mi":10,"nps_site":"Rocky Mountain National Park","olli_mi":25.0,"home":true},{"city":"Columbus area","state":"OH","lat":39.96,"lon":-82.99,"alumni_all":35,"alum_15":26,"alum_10":23,"alum_5":18,"grad":8,"ug":8,"adjunct":1,"people_total":52,"nps_mi":45,"nps_site":"Hopewell Culture National Historical Park","olli_mi":65.0,"home":false},{"city":"Salida","state":"CO","lat":38.526,"lon":-105.998,"alumni_all":5,"alum_15":0,"alum_10":0,"alum_5":0,"grad":1,"ug":0,"adjunct":0,"people_total":6,"nps_mi":47,"nps_site":"Florissant Fossil Beds National Monument","olli_mi":100.0,"home":true},{"city":"Oklahoma City area","state":"OK","lat":35.47,"lon":-97.52,"alumni_all":22,"alum_15":16,"alum_10":11,"alum_5":2,"grad":2,"ug":13,"adjunct":1,"people_total":38,"nps_mi":0,"nps_site":"Oklahoma City National Memorial","olli_mi":19.0,"home":false},{"city":"Fort Myers / Naples","state":"FL","lat":26.55,"lon":-81.85,"alumni_all":38,"alum_15":21,"alum_10":16,"alum_5":8,"grad":2,"ug":3,"adjunct":0,"people_total":43,"nps_mi":62,"nps_site":"Big Cypress National Preserve","olli_mi":69.0,"home":false},{"city":"Honolulu area","state":"HI","lat":21.31,"lon":-157.86,"alumni_all":25,"alum_15":19,"alum_10":17,"alum_5":8,"grad":3,"ug":2,"adjunct":1,"people_total":31,"nps_mi":6,"nps_site":"Pearl Harbor National Memorial","olli_mi":2.0,"home":false},{"city":"Westcliffe","state":"CO","lat":38.123,"lon":-105.433,"alumni_all":5,"alum_15":1,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":24,"nps_site":"Great Sand Dunes National Park & Preserve","olli_mi":114.0,"home":true},{"city":"Greensboro area","state":"NC","lat":36.07,"lon":-79.79,"alumni_all":15,"alum_15":8,"alum_10":6,"alum_5":3,"grad":0,"ug":5,"adjunct":0,"people_total":20,"nps_mi":5,"nps_site":"Guilford Courthouse National Military Park","olli_mi":47.0,"home":false},{"city":"Oxnard","state":"CA","lat":34.235,"lon":-119.182,"alumni_all":5,"alum_15":3,"alum_10":3,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":25,"nps_site":"Santa Monica Mountains National Recreation Area","olli_mi":11.0,"home":false},{"city":"Fresno area","state":"CA","lat":36.74,"lon":-119.78,"alumni_all":10,"alum_15":9,"alum_10":8,"alum_5":6,"grad":1,"ug":1,"adjunct":0,"people_total":12,"nps_mi":66,"nps_site":"Sequoia & Kings Canyon National Parks","olli_mi":8.0,"home":false},{"city":"Olympia","state":"WA","lat":47.013,"lon":-122.876,"alumni_all":13,"alum_15":11,"alum_10":8,"alum_5":4,"grad":0,"ug":0,"adjunct":0,"people_total":13,"nps_mi":48,"nps_site":"Klondike Gold Rush - Seattle Unit National Historical Park","olli_mi":52.0,"home":false},{"city":"Tucson area","state":"AZ","lat":32.22,"lon":-110.97,"alumni_all":40,"alum_15":17,"alum_10":10,"alum_5":5,"grad":1,"ug":1,"adjunct":0,"people_total":42,"nps_mi":12,"nps_site":"Saguaro National Park","olli_mi":2.0,"home":false},{"city":"New Haven area","state":"CT","lat":41.31,"lon":-72.93,"alumni_all":14,"alum_15":10,"alum_10":8,"alum_5":8,"grad":2,"ug":0,"adjunct":1,"people_total":17,"nps_mi":27,"nps_site":"Weir Farm National Historical Park","olli_mi":18.0,"home":false},{"city":"Lubbock","state":"TX","lat":33.592,"lon":-101.937,"alumni_all":3,"alum_15":3,"alum_10":2,"alum_5":0,"grad":1,"ug":2,"adjunct":0,"people_total":6,"nps_mi":138,"nps_site":"Alibates Flint Quarries National Monument","olli_mi":4.0,"home":false},{"city":"Frisco","state":"CO","lat":39.559,"lon":-106.133,"alumni_all":6,"alum_15":2,"alum_10":0,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":60,"nps_site":"Rocky Mountain National Park","olli_mi":62.0,"home":true},{"city":"Charleston area","state":"SC","lat":32.78,"lon":-79.93,"alumni_all":18,"alum_15":15,"alum_10":12,"alum_5":5,"grad":1,"ug":1,"adjunct":0,"people_total":20,"nps_mi":4,"nps_site":"Fort Sumter and Fort Moultrie National Historical Park","olli_mi":62.0,"home":false},{"city":"Wilmington","state":"NC","lat":34.157,"lon":-77.914,"alumni_all":5,"alum_15":2,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":24,"nps_site":"Moores Creek National Battlefield","olli_mi":5.0,"home":false},{"city":"Corvallis","state":"OR","lat":44.59,"lon":-123.272,"alumni_all":5,"alum_15":3,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":77,"nps_site":"Fort Vancouver National Historic Site","olli_mi":40.0,"home":false},{"city":"Pensacola","state":"FL","lat":30.476,"lon":-87.318,"alumni_all":6,"alum_15":5,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":1,"people_total":7,"nps_mi":29,"nps_site":"Gulf Islands National Seashore","olli_mi":135.0,"home":false},{"city":"Apo","state":"AE","lat":0.0,"lon":0.0,"alumni_all":10,"alum_15":5,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":10,"nps_mi":4555,"nps_site":"Buck Island Reef National Monument","olli_mi":5241.0,"home":false},{"city":"Palisade","state":"CO","lat":39.103,"lon":-108.368,"alumni_all":5,"alum_15":4,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":18,"nps_site":"Colorado National Monument","olli_mi":186.0,"home":true},{"city":"Sequim","state":"WA","lat":48.088,"lon":-123.12,"alumni_all":8,"alum_15":3,"alum_10":3,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":8,"nps_mi":22,"nps_site":"Ebey's Landing National Historical Reserve","olli_mi":48.0,"home":false},{"city":"Erie","state":"PA","lat":42.127,"lon":-80.064,"alumni_all":3,"alum_15":2,"alum_10":1,"alum_5":0,"grad":1,"ug":1,"adjunct":0,"people_total":5,"nps_mi":73,"nps_site":"James A Garfield National Historic Site","olli_mi":116.0,"home":false},{"city":"Lander","state":"WY","lat":42.921,"lon":-108.591,"alumni_all":5,"alum_15":4,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":36,"nps_site":"California National Historic Trail","olli_mi":115.0,"home":false},{"city":"Frederick","state":"MD","lat":39.493,"lon":-77.461,"alumni_all":9,"alum_15":7,"alum_10":4,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":9,"nps_mi":10,"nps_site":"Monocacy National Battlefield","olli_mi":29.0,"home":false},{"city":"Bellingham","state":"WA","lat":48.749,"lon":-122.489,"alumni_all":6,"alum_15":2,"alum_10":0,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":31,"nps_site":"San Juan Island National Historical Park","olli_mi":76.0,"home":false},{"city":"Salem","state":"OR","lat":44.949,"lon":-123.004,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":49,"nps_site":"Fort Vancouver National Historic Site","olli_mi":63.0,"home":false},{"city":"Sacramento area","state":"CA","lat":38.58,"lon":-121.49,"alumni_all":53,"alum_15":42,"alum_10":34,"alum_5":17,"grad":1,"ug":6,"adjunct":1,"people_total":61,"nps_mi":47,"nps_site":"Port Chicago Naval Magazine National Memorial","olli_mi":14.0,"home":false},{"city":"Madison area","state":"WI","lat":43.07,"lon":-89.4,"alumni_all":18,"alum_15":14,"alum_10":10,"alum_5":6,"grad":2,"ug":0,"adjunct":0,"people_total":20,"nps_mi":64,"nps_site":"Ice Age National Scenic Trail","olli_mi":76.0,"home":false},{"city":"Rapid City","state":"SD","lat":44.004,"lon":-103.359,"alumni_all":9,"alum_15":8,"alum_10":6,"alum_5":3,"grad":0,"ug":0,"adjunct":0,"people_total":9,"nps_mi":10,"nps_site":"Mount Rushmore National Memorial","olli_mi":169.0,"home":false},{"city":"Clarksville","state":"TN","lat":36.585,"lon":-87.419,"alumni_all":4,"alum_15":2,"alum_10":2,"alum_5":0,"grad":0,"ug":1,"adjunct":0,"people_total":5,"nps_mi":29,"nps_site":"Fort Donelson National Battlefield","olli_mi":46.0,"home":false},{"city":"Rochester area","state":"NY","lat":43.16,"lon":-77.61,"alumni_all":15,"alum_15":10,"alum_10":8,"alum_5":5,"grad":0,"ug":3,"adjunct":0,"people_total":18,"nps_mi":44,"nps_site":"Women's Rights National Historical Park","olli_mi":5.0,"home":false},{"city":"Eugene","state":"OR","lat":44.1,"lon":-123.133,"alumni_all":8,"alum_15":6,"alum_10":5,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":8,"nps_mi":94,"nps_site":"Crater Lake National Park","olli_mi":6.0,"home":false},{"city":"Spokane area","state":"WA","lat":47.66,"lon":-117.43,"alumni_all":15,"alum_15":10,"alum_10":10,"alum_5":6,"grad":4,"ug":3,"adjunct":0,"people_total":22,"nps_mi":55,"nps_site":"Lake Roosevelt National Recreation Area","olli_mi":170.0,"home":false},{"city":"Syracuse area","state":"NY","lat":43.05,"lon":-76.15,"alumni_all":7,"alum_15":5,"alum_10":2,"alum_5":2,"grad":1,"ug":1,"adjunct":0,"people_total":9,"nps_mi":23,"nps_site":"Harriet Tubman National Historical Park","olli_mi":75.0,"home":false},{"city":"Apo","state":"AP","lat":0.0,"lon":0.0,"alumni_all":8,"alum_15":4,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":8,"nps_mi":4555,"nps_site":"Buck Island Reef National Monument","olli_mi":5241.0,"home":false},{"city":"Charlottesville","state":"VA","lat":38.027,"lon":-78.481,"alumni_all":6,"alum_15":4,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":16,"nps_site":"Green Springs","olli_mi":null,"home":false},{"city":"Coeur D Alene","state":"ID","lat":47.725,"lon":-116.789,"alumni_all":2,"alum_15":1,"alum_10":0,"alum_5":0,"grad":0,"ug":3,"adjunct":0,"people_total":5,"nps_mi":79,"nps_site":"Lake Roosevelt National Recreation Area","olli_mi":144.0,"home":false},{"city":"Canon City","state":"CO","lat":38.478,"lon":-105.477,"alumni_all":9,"alum_15":4,"alum_10":0,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":9,"nps_mi":32,"nps_site":"Florissant Fossil Beds National Monument","olli_mi":91.0,"home":true},{"city":"Bend","state":"OR","lat":44.022,"lon":-121.299,"alumni_all":15,"alum_15":6,"alum_10":3,"alum_5":1,"grad":0,"ug":0,"adjunct":1,"people_total":16,"nps_mi":82,"nps_site":"John Day Fossil Beds National Monument","olli_mi":88.0,"home":false},{"city":"Green Bay","state":"WI","lat":44.482,"lon":-88.02,"alumni_all":5,"alum_15":5,"alum_10":5,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":84,"nps_site":"Ice Age National Scenic Trail","olli_mi":97.0,"home":false},{"city":"Harrisburg area","state":"PA","lat":40.27,"lon":-76.88,"alumni_all":10,"alum_15":8,"alum_10":6,"alum_5":4,"grad":1,"ug":11,"adjunct":1,"people_total":23,"nps_mi":25,"nps_site":"Appalachian National Scenic Trail","olli_mi":62.0,"home":false},{"city":"Albany area","state":"NY","lat":42.65,"lon":-73.75,"alumni_all":16,"alum_15":12,"alum_10":11,"alum_5":6,"grad":1,"ug":2,"adjunct":0,"people_total":19,"nps_mi":20,"nps_site":"Martin Van Buren National Historic Site","olli_mi":29.0,"home":false},{"city":"Buffalo area","state":"NY","lat":42.89,"lon":-78.88,"alumni_all":15,"alum_15":13,"alum_10":11,"alum_5":7,"grad":1,"ug":4,"adjunct":0,"people_total":20,"nps_mi":1,"nps_site":"Theodore Roosevelt Inaugural National Historic Site","olli_mi":64.0,"home":false},{"city":"Dayton area","state":"OH","lat":39.76,"lon":-84.19,"alumni_all":16,"alum_15":11,"alum_10":6,"alum_5":4,"grad":1,"ug":1,"adjunct":0,"people_total":18,"nps_mi":5,"nps_site":"Dayton Aviation Heritage National Historical Park","olli_mi":1.0,"home":false},{"city":"Santa Rosa","state":"CA","lat":38.443,"lon":-122.755,"alumni_all":10,"alum_15":9,"alum_10":6,"alum_5":3,"grad":1,"ug":1,"adjunct":0,"people_total":12,"nps_mi":28,"nps_site":"Point Reyes National Seashore","olli_mi":7.0,"home":false},{"city":"Tulsa area","state":"OK","lat":36.15,"lon":-95.99,"alumni_all":14,"alum_15":9,"alum_10":8,"alum_5":4,"grad":1,"ug":3,"adjunct":0,"people_total":18,"nps_mi":98,"nps_site":"Oklahoma City National Memorial","olli_mi":60.0,"home":false},{"city":"Carbondale","state":"CO","lat":39.251,"lon":-107.204,"alumni_all":8,"alum_15":5,"alum_10":3,"alum_5":2,"grad":1,"ug":0,"adjunct":1,"people_total":10,"nps_mi":54,"nps_site":"Black Canyon Of The Gunnison National Park","olli_mi":123.0,"home":true},{"city":"Boise area","state":"ID","lat":43.62,"lon":-116.21,"alumni_all":26,"alum_15":15,"alum_10":11,"alum_5":3,"grad":5,"ug":0,"adjunct":1,"people_total":32,"nps_mi":86,"nps_site":"Hagerman Fossil Beds National Monument","olli_mi":2.0,"home":false},{"city":"Sioux Falls","state":"SD","lat":43.518,"lon":-96.792,"alumni_all":7,"alum_15":4,"alum_10":4,"alum_5":1,"grad":0,"ug":1,"adjunct":0,"people_total":8,"nps_mi":41,"nps_site":"Pipestone National Monument","olli_mi":3.0,"home":false},{"city":"Fruita","state":"CO","lat":39.164,"lon":-108.722,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":8,"nps_site":"Colorado National Monument","olli_mi":197.0,"home":true},{"city":"Gunnison","state":"CO","lat":38.551,"lon":-106.931,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":22,"nps_site":"Curecanti National Recreation Area","olli_mi":133.0,"home":true},{"city":"Richland","state":"WA","lat":46.326,"lon":-119.307,"alumni_all":5,"alum_15":1,"alum_10":0,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":22,"nps_site":"Ice Age Floods National Geologic Trail","olli_mi":169.0,"home":false},{"city":"Medford","state":"OR","lat":42.336,"lon":-122.84,"alumni_all":6,"alum_15":2,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":33,"nps_site":"Oregon Caves National Monument & Preserve","olli_mi":13.0,"home":false},{"city":"Winston Salem","state":"NC","lat":36.143,"lon":-80.307,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":2,"grad":0,"ug":1,"adjunct":0,"people_total":6,"nps_mi":26,"nps_site":"Guilford Courthouse National Military Park","olli_mi":76.0,"home":false},{"city":"Little Rock area","state":"AR","lat":34.75,"lon":-92.29,"alumni_all":12,"alum_15":8,"alum_10":5,"alum_5":4,"grad":1,"ug":1,"adjunct":0,"people_total":14,"nps_mi":1,"nps_site":"Little Rock Central High School National Historic Site","olli_mi":138.0,"home":false},{"city":"Bloomington","state":"IN","lat":39.165,"lon":-86.526,"alumni_all":5,"alum_15":4,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":1,"people_total":6,"nps_mi":64,"nps_site":"George Rogers Clark National Historical Park","olli_mi":52.0,"home":false},{"city":"Cheyenne","state":"WY","lat":41.108,"lon":-104.811,"alumni_all":11,"alum_15":4,"alum_10":4,"alum_5":2,"grad":1,"ug":1,"adjunct":0,"people_total":13,"nps_mi":70,"nps_site":"Rocky Mountain National Park","olli_mi":42.0,"home":false},{"city":"Anchorage area","state":"AK","lat":61.22,"lon":-149.9,"alumni_all":18,"alum_15":13,"alum_10":9,"alum_5":3,"grad":6,"ug":1,"adjunct":0,"people_total":25,"nps_mi":0,"nps_site":"Alaska Public Lands","olli_mi":260.0,"home":false},{"city":"Los Alamos","state":"NM","lat":35.866,"lon":-106.268,"alumni_all":5,"alum_15":2,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":2,"nps_site":"Manhattan Project National Historical Park","olli_mi":61.0,"home":false},{"city":"Albany","state":"OR","lat":44.626,"lon":-123.057,"alumni_all":4,"alum_15":2,"alum_10":1,"alum_5":0,"grad":0,"ug":1,"adjunct":0,"people_total":5,"nps_mi":71,"nps_site":"Fort Vancouver National Historic Site","olli_mi":41.0,"home":false},{"city":"Palmer","state":"AK","lat":61.606,"lon":-148.91,"alumni_all":5,"alum_15":2,"alum_10":1,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":42,"nps_site":"Alaska Public Lands","olli_mi":227.0,"home":false},{"city":"Bowling Green","state":"KY","lat":37.017,"lon":-86.452,"alumni_all":5,"alum_15":2,"alum_10":2,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":22,"nps_site":"Mammoth Cave National Park","olli_mi":63.0,"home":false},{"city":"Carlsbad","state":"NM","lat":32.412,"lon":-104.24,"alumni_all":5,"alum_15":1,"alum_10":1,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":26,"nps_site":"Carlsbad Caverns National Park","olli_mi":140.0,"home":false},{"city":"Brentwood","state":"CA","lat":37.932,"lon":-121.689,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":20,"nps_site":"Eugene O'Neill National Historic Site","olli_mi":16.0,"home":false},{"city":"Montgomery","state":"AL","lat":32.408,"lon":-86.247,"alumni_all":9,"alum_15":7,"alum_10":4,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":9,"nps_mi":30,"nps_site":"Selma To Montgomery National Historic Trail","olli_mi":46.0,"home":false},{"city":"San Juan","state":"PR","lat":18.403,"lon":-66.048,"alumni_all":5,"alum_15":3,"alum_10":3,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":6,"nps_site":"San Juan National Historic Site","olli_mi":1041.0,"home":false},{"city":"Lexington","state":"KY","lat":38.093,"lon":-84.501,"alumni_all":6,"alum_15":5,"alum_10":3,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":6,"nps_mi":21,"nps_site":"Camp Nelson National Monument","olli_mi":4.0,"home":false},{"city":"Helena","state":"MT","lat":46.613,"lon":-112.021,"alumni_all":11,"alum_15":8,"alum_10":4,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":11,"nps_mi":37,"nps_site":"Grant-Kohrs Ranch National Historic Site","olli_mi":87.0,"home":false},{"city":"Bentonville","state":"AR","lat":36.312,"lon":-94.35,"alumni_all":12,"alum_15":11,"alum_10":8,"alum_5":7,"grad":0,"ug":0,"adjunct":0,"people_total":12,"nps_mi":20,"nps_site":"Pea Ridge National Military Park","olli_mi":21.0,"home":false},{"city":"Santa Barbara","state":"CA","lat":34.421,"lon":-119.698,"alumni_all":6,"alum_15":3,"alum_10":0,"alum_5":0,"grad":0,"ug":0,"adjunct":1,"people_total":7,"nps_mi":32,"nps_site":"Channel Islands National Park","olli_mi":43.0,"home":false},{"city":"Gainesville","state":"FL","lat":29.613,"lon":-82.387,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":2,"grad":3,"ug":1,"adjunct":0,"people_total":9,"nps_mi":67,"nps_site":"Castillo de San Marcos National Monument","olli_mi":74.0,"home":false},{"city":"Idaho Falls","state":"ID","lat":43.475,"lon":-112.012,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":1,"grad":1,"ug":0,"adjunct":0,"people_total":6,"nps_mi":70,"nps_site":"Grand Teton National Park","olli_mi":158.0,"home":false},{"city":"Glenwood Springs","state":"CO","lat":39.53,"lon":-107.325,"alumni_all":5,"alum_15":2,"alum_10":1,"alum_5":0,"grad":2,"ug":0,"adjunct":0,"people_total":7,"nps_mi":69,"nps_site":"Black Canyon Of The Gunnison National Park","olli_mi":125.0,"home":true},{"city":"Springfield MA area","state":"MA","lat":42.1,"lon":-72.59,"alumni_all":9,"alum_15":8,"alum_10":6,"alum_5":2,"grad":1,"ug":1,"adjunct":0,"people_total":11,"nps_mi":1,"nps_site":"Springfield Armory National Historic Site","olli_mi":42.0,"home":false},{"city":"Gilroy","state":"CA","lat":37.014,"lon":-121.577,"alumni_all":4,"alum_15":2,"alum_10":1,"alum_5":1,"grad":1,"ug":0,"adjunct":0,"people_total":5,"nps_mi":42,"nps_site":"Pinnacles National Park","olli_mi":27.0,"home":false},{"city":"Corpus Christi","state":"TX","lat":27.706,"lon":-97.354,"alumni_all":6,"alum_15":5,"alum_10":5,"alum_5":2,"grad":1,"ug":2,"adjunct":0,"people_total":9,"nps_mi":45,"nps_site":"Padre Island National Seashore","olli_mi":180.0,"home":false},{"city":"Duluth","state":"MN","lat":46.799,"lon":-92.095,"alumni_all":5,"alum_15":3,"alum_10":2,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":69,"nps_site":"North Country National Scenic Trail","olli_mi":136.0,"home":false},{"city":"Fpo","state":"AE","lat":0.0,"lon":0.0,"alumni_all":5,"alum_15":3,"alum_10":1,"alum_5":0,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":4555,"nps_site":"Buck Island Reef National Monument","olli_mi":5241.0,"home":false},{"city":"Livingston","state":"TX","lat":30.683,"lon":-94.898,"alumni_all":4,"alum_15":0,"alum_10":0,"alum_5":0,"grad":0,"ug":1,"adjunct":0,"people_total":5,"nps_mi":34,"nps_site":"Big Thicket National Preserve","olli_mi":94.0,"home":false},{"city":"Vail","state":"CO","lat":39.651,"lon":-106.323,"alumni_all":7,"alum_15":6,"alum_10":5,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":7,"nps_mi":59,"nps_site":"Rocky Mountain National Park","olli_mi":71.0,"home":true},{"city":"Flagstaff","state":"AZ","lat":35.186,"lon":-111.662,"alumni_all":3,"alum_15":2,"alum_10":2,"alum_5":1,"grad":0,"ug":0,"adjunct":2,"people_total":5,"nps_mi":9,"nps_site":"Walnut Canyon National Monument","olli_mi":60.0,"home":false},{"city":"Bakersfield area","state":"CA","lat":35.37,"lon":-119.02,"alumni_all":6,"alum_15":5,"alum_10":3,"alum_5":1,"grad":2,"ug":1,"adjunct":0,"people_total":9,"nps_mi":28,"nps_site":"C\u00e9sar E. Ch\u00e1vez National Monument","olli_mi":79.0,"home":false},{"city":"Staunton","state":"VA","lat":38.157,"lon":-79.065,"alumni_all":4,"alum_15":3,"alum_10":3,"alum_5":3,"grad":1,"ug":1,"adjunct":0,"people_total":6,"nps_mi":40,"nps_site":"Shenandoah National Park","olli_mi":33.0,"home":false},{"city":"Peoria","state":"IL","lat":40.768,"lon":-89.603,"alumni_all":1,"alum_15":0,"alum_10":0,"alum_5":0,"grad":1,"ug":8,"adjunct":0,"people_total":10,"nps_mi":67,"nps_site":"Lincoln Home National Historic Site","olli_mi":5.0,"home":false},{"city":"Casper","state":"WY","lat":42.841,"lon":-106.281,"alumni_all":7,"alum_15":7,"alum_10":4,"alum_5":1,"grad":0,"ug":0,"adjunct":0,"people_total":7,"nps_mi":99,"nps_site":"Fort Laramie National Historic Site","olli_mi":2.0,"home":false},{"city":"Alamosa","state":"CO","lat":37.47,"lon":-105.879,"alumni_all":5,"alum_15":5,"alum_10":2,"alum_5":2,"grad":0,"ug":0,"adjunct":0,"people_total":5,"nps_mi":27,"nps_site":"Great Sand Dunes National Park & Preserve","olli_mi":164.0,"home":true},{"city":"Lancaster","state":"PA","lat":40.077,"lon":-76.311,"alumni_all":3,"alum_15":3,"alum_10":2,"alum_5":1,"grad":1,"ug":1,"adjunct":0,"people_total":5,"nps_mi":24,"nps_site":"Appalachian National Scenic Trail","olli_mi":45.0,"home":false},{"city":"El Paso area","state":"TX","lat":31.76,"lon":-106.49,"alumni_all":6,"alum_15":6,"alum_10":3,"alum_5":3,"grad":0,"ug":3,"adjunct":0,"people_total":9,"nps_mi":2,"nps_site":"Chamizal National Memorial","olli_mi":1.0,"home":false},{"city":"Modesto","state":"CA","lat":37.675,"lon":-121.011,"alumni_all":5,"alum_15":5,"alum_10":5,"alum_5":3,"grad":0,"ug":3,"adjunct":0,"people_total":8,"nps_mi":56,"nps_site":"Eugene O'Neill National Historic Site","olli_mi":27.0,"home":false},{"city":"Tallahassee area","state":"FL","lat":30.44,"lon":-84.28,"alumni_all":4,"alum_15":4,"alum_10":4,"alum_5":2,"grad":1,"ug":0,"adjunct":1,"people_total":6,"nps_mi":110,"nps_site":"Jimmy Carter National Historical Park","olli_mi":1.0,"home":false},{"city":"Iowa City","state":"IA","lat":41.636,"lon":-91.502,"alumni_all":5,"alum_15":5,"alum_10":5,"alum_5":3,"grad":1,"ug":0,"adjunct":0,"people_total":6,"nps_mi":8,"nps_site":"Herbert Hoover National Historic Site","olli_mi":105.0,"home":false},{"city":"Stockton","state":"CA","lat":38.038,"lon":-121.344,"alumni_all":2,"alum_15":2,"alum_10":2,"alum_5":2,"grad":1,"ug":2,"adjunct":0,"people_total":5,"nps_mi":37,"nps_site":"Port Chicago Naval Magazine National Memorial","olli_mi":4.0,"home":false},{"city":"Lebanon","state":"PA","lat":40.381,"lon":-76.437,"alumni_all":1,"alum_15":1,"alum_10":1,"alum_5":0,"grad":0,"ug":4,"adjunct":0,"people_total":5,"nps_mi":2,"nps_site":"Appalachian National Scenic Trail","olli_mi":63.0,"home":false},{"city":"Springfield","state":"MO","lat":37.212,"lon":-93.299,"alumni_all":1,"alum_15":1,"alum_10":1,"alum_5":1,"grad":1,"ug":3,"adjunct":0,"people_total":5,"nps_mi":10,"nps_site":"Wilson's Creek National Battlefield","olli_mi":93.0,"home":false}];
+const MAP="M391.7,213.5 409.3,213.7 411.0,225.6 413.5,243.0 414.7,246.8 415.8,249.0 415.3,250.4 416.5,251.2 414.8,252.9 414.8,254.7 413.9,257.0 414.9,261.1 414.2,264.8 415.3,268.5 410.4,268.6 389.3,268.6 388.9,270.4 391.2,273.0 390.8,275.3 391.6,276.4 390.1,278.5 388.7,278.9 386.2,276.7 385.9,273.3 385.1,272.9 384.2,275.5 383.9,277.9 381.3,277.3 380.5,256.2 382.8,230.1 384.3,215.0 383.2,213.6 391.7,213.5Z M174.1,186.0 174.1,264.0 153.7,264.0 142.0,258.9 116.2,248.0 117.1,244.9 119.1,244.4 119.7,243.2 119.1,240.6 117.7,240.6 117.1,235.4 119.1,233.5 119.4,231.4 119.0,228.2 120.2,225.8 121.8,224.9 123.0,223.1 121.0,221.1 119.7,217.5 118.0,215.2 118.0,213.5 118.6,211.6 118.4,209.1 117.6,206.4 117.0,198.4 120.6,197.8 121.9,199.5 122.8,199.4 123.9,197.1 123.9,186.0 159.5,185.9 174.1,186.0Z M320.3,192.9 363.7,192.9 364.5,195.6 363.0,197.2 361.4,199.8 367.9,199.8 367.6,202.4 366.1,203.1 365.7,205.2 363.9,207.5 364.0,210.8 363.1,213.2 362.1,213.6 362.7,214.8 361.1,215.8 360.4,218.2 359.3,218.8 359.5,221.5 357.7,222.2 357.7,223.2 355.6,225.4 356.2,226.9 354.4,229.1 352.8,233.3 354.6,235.1 353.7,236.3 354.3,239.1 353.5,241.0 329.0,240.8 324.6,240.8 324.6,233.5 323.2,232.9 321.2,233.6 320.2,232.3 320.7,208.1 318.9,192.9 320.3,192.9Z M31.7,117.1 40.3,117.0 53.8,117.3 64.2,117.3 64.2,141.1 64.2,158.5 77.1,170.8 89.3,183.0 98.9,192.9 105.8,200.2 118.0,213.5 118.0,215.2 119.7,217.5 121.0,221.1 123.0,223.1 121.8,224.9 120.2,225.8 119.0,228.2 119.4,231.4 119.1,233.5 117.1,235.4 117.7,240.6 119.1,240.6 119.7,243.2 119.1,244.4 117.1,244.9 103.8,246.2 93.0,247.4 91.8,245.6 91.7,242.7 91.0,239.4 89.5,236.9 86.4,233.6 82.4,230.5 81.6,231.4 80.1,230.8 80.3,229.5 78.5,226.7 76.2,227.3 72.0,225.3 71.4,223.6 68.6,221.6 65.4,221.6 62.8,220.7 59.4,221.1 57.7,219.3 58.1,215.5 57.4,214.9 57.8,212.1 55.2,210.1 55.1,207.3 54.1,207.2 52.4,204.8 51.3,204.2 50.8,202.7 46.9,197.1 45.1,195.4 44.8,191.0 45.5,191.3 46.2,188.7 44.8,186.3 43.0,186.6 40.7,184.4 39.9,182.7 40.1,181.0 38.9,178.8 38.9,175.2 40.8,175.2 40.0,170.2 39.2,170.7 39.0,173.2 37.1,173.7 34.7,171.8 34.3,168.6 32.8,166.0 30.7,164.4 29.6,162.6 26.7,159.1 27.2,158.0 25.8,153.4 26.4,150.9 25.5,147.0 22.9,143.3 20.4,141.2 19.9,138.7 22.4,132.6 22.9,130.6 22.4,129.0 23.4,124.9 22.5,121.1 21.5,120.2 21.9,117.2 31.7,117.1Z M185.4,130.9 207.4,131.0 224.2,130.9 244.2,130.9 244.2,144.7 244.3,186.1 234.7,186.0 221.3,186.1 195.9,186.1 190.4,186.0 174.1,186.0 174.1,169.9 174.0,168.4 174.0,156.8 174.1,131.0 185.4,130.9Z M535.2,116.7 547.8,116.9 547.8,125.3 547.2,126.5 546.3,126.3 541.9,127.4 536.7,127.1 534.5,128.9 532.0,129.5 529.2,131.1 528.5,129.5 530.9,128.0 530.2,126.9 530.9,116.5 535.2,116.7Z M511.5,147.4 510.6,149.1 509.6,150.0 509.8,152.2 511.3,154.2 511.6,157.6 513.8,161.1 514.8,161.3 515.2,166.0 508.7,165.9 507.8,148.5 509.5,147.0 511.5,147.4Z M495.3,158.6 496.5,159.9 495.2,161.4 494.4,159.4 495.3,158.6Z M410.4,268.6 415.3,268.5 416.7,272.5 430.4,273.4 443.3,274.5 443.8,277.4 445.0,277.3 445.4,274.5 445.0,272.0 446.0,270.9 448.3,272.1 451.0,272.6 451.6,278.5 452.9,285.2 455.8,294.1 460.3,303.5 459.6,304.2 459.8,308.5 461.7,313.4 464.6,323.3 465.2,326.4 465.2,329.6 464.1,340.9 463.1,341.2 462.1,344.7 462.5,345.8 460.5,348.4 459.8,347.8 457.9,348.9 454.7,349.5 453.8,348.0 454.2,345.9 452.0,339.8 450.2,338.7 448.7,339.5 447.5,336.1 447.1,333.3 445.0,330.2 444.5,328.2 444.9,325.3 443.7,324.7 444.0,326.5 443.0,326.9 439.8,319.5 438.5,317.6 441.5,312.1 439.5,312.4 438.2,314.1 436.9,311.4 438.7,303.9 439.0,297.6 437.8,296.1 437.4,294.1 435.5,293.6 433.2,290.3 431.4,288.9 431.3,286.9 430.0,286.2 429.0,283.9 425.2,280.9 421.8,281.6 422.0,283.7 420.9,283.3 416.7,285.9 412.2,286.5 412.3,284.9 411.3,283.1 406.1,279.1 402.3,277.3 399.0,276.9 396.2,277.2 390.1,278.5 391.6,276.4 390.8,275.3 391.2,273.0 388.9,270.4 389.3,268.6 410.4,268.6Z M434.3,213.5 432.2,216.4 432.0,217.9 435.4,220.8 436.4,220.6 438.0,223.6 438.3,225.2 439.9,228.0 442.2,229.8 443.5,232.3 446.2,234.7 446.1,236.3 447.8,238.8 450.5,240.9 451.2,243.2 451.3,246.1 452.7,247.1 454.3,250.8 454.3,253.1 456.6,254.4 454.2,259.0 453.7,261.4 452.7,263.5 452.6,265.7 451.5,266.7 451.0,272.6 448.3,272.1 446.0,270.9 445.0,272.0 445.4,274.5 445.0,277.3 443.8,277.4 443.3,274.5 430.4,273.4 416.7,272.5 415.3,268.5 414.2,264.8 414.9,261.1 413.9,257.0 414.8,254.7 414.8,252.9 416.5,251.2 415.3,250.4 415.8,249.0 414.7,246.8 413.5,243.0 411.0,225.6 409.3,213.7 422.2,213.7 429.2,213.7 434.3,213.5Z M103.8,20.9 103.8,35.0 107.1,38.8 107.1,42.6 109.0,44.2 111.1,44.8 111.3,45.8 115.0,49.5 115.5,51.0 118.1,52.5 118.2,53.4 121.1,53.3 119.7,58.4 119.4,61.6 120.5,63.8 118.7,65.3 119.4,66.7 118.9,68.2 121.0,69.6 123.5,67.8 124.5,66.2 126.3,67.6 126.0,68.7 127.0,71.4 128.7,74.2 129.9,75.1 129.8,77.8 131.0,78.9 133.1,79.1 134.4,83.5 135.5,84.3 136.6,83.0 139.7,83.1 142.0,81.8 143.4,82.5 145.8,81.9 146.3,82.7 148.3,82.1 150.6,79.3 152.2,81.7 154.0,83.1 154.0,117.2 142.8,117.3 123.9,117.3 94.0,117.2 94.0,92.0 95.3,87.5 94.5,86.4 92.6,86.1 91.8,84.3 93.9,79.4 94.9,78.9 96.0,76.9 95.8,75.6 97.0,73.9 97.6,71.5 99.7,67.5 98.8,65.6 96.5,64.6 95.1,62.3 95.0,59.8 93.7,57.4 93.9,56.3 93.8,37.9 93.9,20.9 103.8,20.9Z M358.8,110.2 377.3,110.4 387.2,110.4 386.9,113.0 388.4,116.1 390.0,121.2 390.0,153.7 388.9,156.2 390.1,159.1 390.3,161.5 389.0,163.5 388.7,165.3 386.9,168.2 385.7,168.4 386.0,170.2 385.3,170.8 384.6,174.1 385.0,175.0 383.7,177.0 384.6,179.4 380.5,180.6 380.1,182.1 381.0,183.9 379.8,185.0 376.1,182.9 374.9,183.1 373.4,185.5 373.9,186.2 372.3,186.1 370.0,182.2 370.9,181.2 370.0,178.6 370.0,176.5 366.8,173.6 365.7,173.9 364.6,172.1 361.6,169.3 361.7,167.1 363.4,163.5 363.1,162.3 364.1,160.6 362.7,159.6 360.5,159.0 359.3,160.3 358.5,159.5 357.9,154.9 354.5,152.0 351.5,148.5 350.2,144.2 350.1,141.5 351.0,139.5 351.1,137.0 353.9,135.5 354.2,133.4 355.5,132.0 355.7,129.6 354.0,127.7 354.7,125.3 358.6,124.6 361.7,122.8 362.1,120.7 363.4,119.8 363.8,117.2 363.5,115.5 361.2,114.1 361.0,112.7 358.8,110.2Z M405.4,120.5 417.3,120.5 417.3,121.4 417.3,137.8 417.2,157.1 416.4,157.7 417.2,161.4 415.5,161.5 413.6,162.8 411.0,162.2 411.1,164.9 409.4,166.0 408.8,167.8 407.0,168.4 406.1,171.9 404.9,172.8 402.7,171.5 402.3,169.9 400.1,171.7 400.3,173.2 398.0,173.7 397.3,172.4 394.8,173.7 394.0,175.1 391.5,173.1 390.1,173.6 389.3,172.6 388.4,173.6 385.9,173.7 385.0,175.0 384.6,174.1 385.3,170.8 386.0,170.2 385.7,168.4 386.9,168.2 388.7,165.3 389.0,163.5 390.3,161.5 390.1,159.1 388.9,156.2 390.0,153.7 390.0,121.2 391.0,122.1 394.1,122.1 397.1,120.5 405.4,120.5Z M351.5,96.5 353.0,96.5 353.1,98.6 354.6,99.9 353.4,101.6 353.7,104.7 354.5,106.9 358.1,108.4 358.8,110.2 361.0,112.7 361.2,114.1 363.5,115.5 363.8,117.2 363.4,119.8 362.1,120.7 361.7,122.8 358.6,124.6 354.7,125.3 354.0,127.7 355.7,129.6 355.5,132.0 354.2,133.4 353.9,135.5 351.1,137.0 351.0,139.5 349.9,139.0 347.8,136.3 346.8,136.3 332.5,136.7 318.7,136.9 307.3,136.6 306.2,134.8 306.7,131.3 305.7,128.2 305.8,124.7 304.0,123.5 303.8,121.6 304.4,120.0 303.7,117.6 302.3,116.7 300.5,110.5 298.6,107.5 299.5,105.4 299.9,102.7 300.6,101.7 299.4,100.4 299.7,98.0 299.1,96.8 300.5,96.5 351.5,96.5Z M245.7,144.7 311.9,144.7 312.9,146.0 316.2,147.0 313.9,151.0 315.2,152.4 316.8,155.6 318.9,156.3 318.9,186.0 264.0,186.0 244.3,186.1 244.2,144.7 245.7,144.7Z M426.4,161.7 428.6,163.5 430.2,162.6 434.0,163.6 435.1,162.3 436.5,161.8 437.0,164.1 438.1,164.5 439.5,166.4 439.2,170.5 440.4,173.2 442.0,175.2 442.5,176.8 444.4,178.4 445.8,178.6 441.9,182.3 438.2,184.3 438.2,185.4 436.7,186.3 436.6,187.5 434.7,188.0 434.1,189.5 428.7,191.5 419.9,191.6 412.5,191.1 410.5,191.3 399.4,190.7 386.7,191.0 384.5,190.4 384.7,192.9 372.2,192.8 371.0,192.9 371.6,191.2 373.1,191.8 373.9,186.2 373.4,185.5 374.9,183.1 376.1,182.9 379.8,185.0 381.0,183.9 380.1,182.1 380.5,180.6 384.6,179.4 383.7,177.0 385.0,175.0 385.9,173.7 388.4,173.6 389.3,172.6 390.1,173.6 391.5,173.1 394.0,175.1 394.8,173.7 397.3,172.4 398.0,173.7 400.3,173.2 400.1,171.7 402.3,169.9 402.7,171.5 404.9,172.8 406.1,171.9 407.0,168.4 408.8,167.8 409.4,166.0 411.1,164.9 411.0,162.2 413.6,162.8 415.5,161.5 417.2,161.4 416.4,157.7 417.2,157.1 421.0,157.1 423.1,159.9 423.2,161.1 426.4,161.7Z M329.0,240.8 353.5,241.0 354.4,242.6 353.7,243.2 353.6,246.0 355.1,247.7 355.3,251.8 354.1,255.0 351.7,256.9 351.1,260.0 350.1,259.7 350.0,264.8 348.8,264.9 349.5,267.6 348.8,268.6 367.7,268.6 366.7,273.1 368.4,276.1 368.8,278.4 370.0,279.8 367.0,281.7 366.8,283.1 369.2,284.0 370.3,281.8 372.3,284.0 372.2,285.7 371.0,286.5 368.7,285.8 369.0,287.1 368.2,289.0 370.1,290.8 373.2,291.3 374.3,293.3 375.2,293.6 373.6,296.0 371.8,295.5 370.4,293.1 366.7,291.8 366.7,289.5 364.9,290.2 365.0,292.2 364.2,294.0 362.8,294.3 361.8,292.3 359.5,292.2 358.7,294.3 357.2,294.9 355.5,293.6 354.2,293.5 352.9,290.1 350.7,288.6 349.8,288.8 348.9,285.9 346.3,286.3 346.2,284.6 343.7,286.2 344.0,287.5 342.0,288.7 338.9,288.1 335.4,286.2 332.8,285.4 327.4,286.1 326.7,286.6 325.8,285.2 328.2,280.4 327.4,277.7 328.1,276.3 327.8,274.4 328.8,273.0 329.8,269.4 329.6,266.5 326.9,260.9 326.8,257.9 324.6,254.9 324.6,240.8 329.0,240.8Z M558.8,102.6 557.6,101.7 557.8,100.3 556.2,98.7 555.5,80.6 555.0,71.7 559.4,69.9 558.6,68.9 560.3,66.8 562.0,65.8 561.7,65.0 563.3,63.7 562.8,61.3 563.7,57.7 565.3,56.4 565.9,52.6 573.6,42.1 575.5,42.5 575.6,45.1 576.9,46.0 580.1,44.5 582.2,44.5 583.6,43.5 586.4,45.7 588.0,47.5 588.1,62.9 587.9,66.6 591.4,67.6 590.9,69.2 591.8,70.7 591.1,72.0 592.5,74.2 594.4,73.7 596.2,78.6 594.1,80.8 592.9,80.0 591.9,81.5 590.5,81.1 590.3,82.4 588.4,82.2 585.5,85.2 584.7,83.1 583.7,83.0 584.2,85.2 581.9,86.2 581.3,84.5 580.2,85.4 577.7,85.4 577.6,83.4 576.1,83.8 576.3,85.2 574.9,88.3 575.2,89.1 573.3,90.7 571.4,90.1 570.3,91.9 568.8,92.1 567.5,93.5 566.0,93.2 565.6,91.7 563.3,94.1 563.9,95.6 562.3,96.2 562.2,97.4 560.3,99.0 558.8,102.6Z M470.8,148.5 507.8,148.5 508.7,165.9 515.2,166.0 513.2,171.8 511.7,172.1 509.0,172.9 506.8,173.5 506.9,171.2 506.0,170.3 507.2,169.3 505.7,167.1 505.2,168.1 503.1,167.8 502.4,165.3 503.1,162.1 503.7,160.8 502.9,156.5 504.0,153.9 505.7,153.4 505.9,150.8 504.7,151.1 504.6,152.5 502.0,154.2 501.2,155.8 501.0,159.8 500.1,161.7 500.5,164.8 501.8,167.0 501.6,168.7 502.5,170.3 502.0,171.5 499.7,169.3 496.4,168.2 495.4,166.1 493.6,167.3 492.9,165.6 494.3,163.5 495.2,161.4 496.5,159.9 495.3,158.6 494.4,159.4 493.1,158.1 491.0,157.4 491.0,155.4 489.9,154.3 488.4,154.0 487.2,150.2 485.5,150.2 483.8,148.9 482.9,150.0 481.3,149.9 480.9,151.4 477.9,150.4 475.9,152.5 474.6,152.0 472.6,154.3 470.7,155.6 470.8,148.5Z M556.7,105.0 557.6,105.2 558.0,107.6 557.6,109.6 556.0,111.4 555.9,113.5 558.1,113.8 559.5,116.0 559.2,117.7 560.3,118.2 560.4,119.8 563.3,121.1 566.5,119.8 565.8,121.7 561.0,123.4 559.2,123.4 558.2,122.2 556.5,122.5 556.5,123.5 554.6,124.1 553.9,121.6 553.6,121.2 552.5,120.2 552.0,117.0 550.5,117.0 547.8,117.1 535.2,116.7 530.9,116.5 530.7,116.0 533.1,106.9 541.2,107.2 552.9,107.6 554.0,106.3 556.7,105.0Z M430.9,120.9 417.3,121.4 417.3,120.5 405.4,120.5 397.1,120.5 399.1,118.7 400.5,115.6 401.7,113.7 402.7,111.1 403.2,107.3 403.0,103.2 400.0,95.3 401.0,92.2 400.3,88.6 402.6,84.9 403.1,81.8 402.8,80.2 404.4,79.5 404.7,77.2 407.2,76.6 409.2,74.2 409.0,79.1 410.1,79.4 411.4,76.9 411.5,72.7 412.3,71.6 415.0,70.9 414.2,68.0 416.0,65.5 418.2,65.3 420.8,66.9 423.2,67.1 424.4,69.1 426.3,69.3 429.4,71.1 430.5,71.0 432.2,73.9 430.9,75.5 432.2,77.5 432.7,79.9 432.1,85.0 430.0,86.3 429.5,88.9 427.1,89.8 425.8,93.0 426.3,94.2 428.7,95.3 430.6,93.6 432.8,90.1 436.3,88.7 438.0,89.8 439.0,91.7 440.0,97.4 440.2,100.3 441.3,103.8 440.3,108.7 438.6,109.5 438.6,107.7 437.5,108.2 436.2,112.4 434.2,113.9 433.6,117.1 431.0,119.8 430.9,120.9Z M410.3,65.9 410.4,67.5 409.1,67.8 409.7,65.5 410.3,65.9Z M389.4,74.6 387.8,73.2 388.8,71.2 386.4,70.9 387.3,69.0 387.5,66.6 385.4,65.0 384.2,63.2 379.9,61.9 378.6,62.3 374.3,60.3 364.0,57.5 362.9,55.2 361.0,54.3 364.9,52.9 366.7,51.2 371.1,50.6 373.9,48.5 375.3,48.5 376.4,47.0 379.5,45.0 381.1,43.3 383.4,42.1 385.7,43.1 381.7,47.3 380.8,48.8 380.9,51.3 382.8,49.4 386.2,49.7 388.9,51.0 391.4,54.8 392.7,55.5 395.2,54.9 395.8,55.7 398.3,56.1 403.7,53.0 406.5,52.7 410.3,52.8 412.8,51.8 414.7,51.7 415.1,55.5 417.1,56.1 419.1,55.5 419.9,56.4 421.2,55.2 424.1,54.9 424.2,59.7 425.5,61.7 427.5,62.3 427.7,60.9 429.6,60.9 430.6,62.3 429.8,63.4 424.3,62.5 421.6,63.1 418.8,61.4 418.0,62.9 418.3,64.2 417.1,63.9 415.2,62.0 412.0,60.9 410.3,60.8 408.7,62.6 406.1,63.1 403.2,62.7 402.1,63.5 401.8,65.0 398.7,66.2 398.8,64.4 397.5,64.1 396.9,65.9 394.6,66.0 393.6,66.8 392.0,70.1 389.2,74.2Z M377.2,35.0 374.6,36.7 373.3,36.9 373.4,35.5 379.8,32.3 378.5,34.5 377.2,35.0Z M345.0,52.5 344.2,51.9 342.2,53.0 342.2,61.1 341.6,61.9 338.7,63.1 336.4,66.0 336.2,68.0 337.4,68.1 338.7,69.9 337.5,72.0 337.7,74.3 337.0,79.4 339.6,81.8 341.7,82.1 342.8,83.6 345.9,85.1 346.3,86.9 349.2,89.2 350.8,89.8 352.7,92.8 352.4,95.0 353.0,96.5 351.5,96.5 300.5,96.5 300.5,71.8 298.1,70.2 296.4,67.6 299.1,64.7 299.4,63.1 299.0,57.6 297.8,56.1 296.9,53.1 297.1,49.4 296.7,48.8 296.4,40.0 294.4,35.3 293.6,32.7 293.3,27.1 294.0,25.2 292.7,20.9 313.5,20.9 313.5,15.6 315.5,15.8 316.8,16.8 318.1,24.0 319.1,24.8 322.4,25.0 322.8,25.7 326.7,26.0 327.1,27.5 330.4,27.1 333.0,25.8 335.2,26.1 337.8,27.2 338.5,28.6 340.0,28.5 341.4,31.6 342.1,30.3 344.6,29.7 345.0,31.0 348.0,31.9 348.0,33.1 349.5,34.1 352.5,33.5 354.3,32.2 356.8,31.4 357.7,33.4 359.4,32.9 361.4,33.4 363.8,33.1 366.5,34.8 369.0,34.5 368.8,35.3 365.5,37.0 360.8,38.4 357.8,39.8 353.4,43.3 351.6,45.5 348.7,48.0 344.2,51.3 345.0,52.5Z M380.5,213.6 383.2,213.6 384.3,215.0 382.8,230.1 380.5,256.2 381.3,277.3 380.2,277.9 377.8,277.6 376.8,276.7 374.4,277.3 371.0,278.8 370.0,279.8 368.8,278.4 368.4,276.1 366.7,273.1 367.7,268.6 348.8,268.6 349.5,267.6 348.8,264.9 350.0,264.8 350.1,259.7 351.1,260.0 351.7,256.9 354.1,255.0 355.3,251.8 355.1,247.7 353.6,246.0 353.7,243.2 354.4,242.6 353.5,241.0 354.3,239.1 353.7,236.3 354.6,235.1 352.8,233.3 354.4,229.1 356.2,226.9 355.6,225.4 357.7,223.2 357.7,222.2 359.5,221.5 359.3,218.8 360.4,218.2 361.1,215.8 362.7,214.8 362.1,213.6 380.5,213.6Z M346.8,136.3 347.8,136.3 349.9,139.0 351.0,139.5 350.1,141.5 350.2,144.2 351.5,148.5 354.5,152.0 357.9,154.9 358.5,159.5 359.3,160.3 360.5,159.0 362.7,159.6 364.1,160.6 363.1,162.3 363.4,163.5 361.7,167.1 361.6,169.3 364.6,172.1 365.7,173.9 366.8,173.6 370.0,176.5 370.0,178.6 370.9,181.2 370.0,182.2 372.3,186.1 373.9,186.2 373.1,191.8 371.6,191.2 371.0,192.9 369.8,192.9 369.9,196.3 367.9,199.8 361.4,199.8 363.0,197.2 364.5,195.6 363.7,192.9 320.3,192.9 318.9,192.9 318.9,186.0 318.9,156.3 316.8,155.6 315.2,152.4 313.9,151.0 316.2,147.0 312.9,146.0 311.9,144.7 309.5,141.1 307.3,136.6 318.7,136.9 332.5,136.7 346.8,136.3Z M224.2,20.9 224.3,36.6 224.2,62.9 224.3,76.0 205.5,75.9 173.7,75.9 153.9,75.9 154.0,83.1 152.2,81.7 150.6,79.3 148.3,82.1 146.3,82.7 145.8,81.9 143.4,82.5 142.0,81.8 139.7,83.1 136.6,83.0 135.5,84.3 134.4,83.5 133.1,79.1 131.0,78.9 129.8,77.8 129.9,75.1 128.7,74.2 127.0,71.4 126.0,68.7 126.3,67.6 124.5,66.2 123.5,67.8 121.0,69.6 118.9,68.2 119.4,66.7 118.7,65.3 120.5,63.8 119.4,61.6 119.7,58.4 121.1,53.3 118.2,53.4 118.1,52.5 115.5,51.0 115.0,49.5 111.3,45.8 111.1,44.8 109.0,44.2 107.1,42.6 107.1,38.8 103.8,35.0 103.8,20.9 149.4,21.0 170.0,20.9 224.2,20.9Z M231.5,103.4 248.5,103.5 279.9,103.5 280.2,104.2 285.4,106.6 286.6,105.3 288.0,105.6 292.8,105.6 298.0,108.1 298.7,110.1 300.5,110.5 302.3,116.7 303.7,117.6 304.4,120.0 303.8,121.6 304.0,123.5 305.8,124.7 305.7,128.2 306.7,131.3 306.2,134.8 307.3,136.6 309.5,141.1 311.9,144.7 245.7,144.7 244.2,144.7 244.2,130.9 224.2,130.9 224.2,103.4 231.5,103.4Z M94.0,117.2 123.9,117.3 123.9,186.0 123.9,197.1 122.8,199.4 121.9,199.5 120.6,197.8 117.0,198.4 117.6,206.4 118.4,209.1 118.6,211.6 118.0,213.5 105.8,200.2 98.9,192.9 89.3,183.0 77.1,170.8 64.2,158.5 64.2,141.1 64.2,117.3 77.2,117.3 94.0,117.2Z M555.0,71.7 555.5,80.6 556.2,98.7 557.8,100.3 557.6,101.7 558.8,102.6 557.6,105.2 556.7,105.0 554.0,106.3 552.9,107.6 541.2,107.2 540.3,106.1 540.4,104.1 541.3,103.3 541.2,101.4 542.0,95.6 543.7,92.8 544.6,89.8 545.5,88.6 545.4,85.2 548.8,84.0 550.4,81.6 549.5,79.4 550.9,77.1 550.8,75.7 552.2,72.2 554.5,72.6 555.0,71.7Z M523.4,129.0 526.7,131.0 525.5,135.0 523.8,135.9 523.0,138.0 525.7,139.0 525.9,140.6 524.7,148.0 521.6,153.5 519.6,155.1 517.7,158.6 516.8,156.3 513.9,155.2 510.3,152.2 510.1,150.1 510.6,149.1 511.5,147.4 514.2,146.3 514.4,145.2 517.5,143.0 518.0,141.8 515.1,139.0 515.0,137.2 513.7,136.8 513.6,135.2 515.2,132.8 514.3,131.4 516.9,128.5 517.4,127.0 518.7,126.0 523.4,129.0Z M190.4,186.0 195.9,186.1 221.3,186.1 234.7,186.0 234.7,192.9 234.3,227.1 234.1,241.0 234.1,254.8 198.5,254.8 198.2,256.2 199.3,257.7 182.5,257.7 182.5,264.0 174.1,264.0 174.1,186.0 190.4,186.0Z M532.3,75.7 532.4,78.6 531.9,81.2 532.8,83.7 532.5,86.3 531.4,89.1 532.3,92.8 531.7,94.0 533.3,96.2 533.0,105.7 533.1,106.9 530.7,116.0 530.9,116.5 530.2,126.9 530.9,128.0 528.5,129.5 529.2,131.1 533.5,132.3 534.3,131.4 538.0,131.4 539.9,131.0 543.0,128.8 543.2,130.4 544.8,131.1 541.1,133.1 533.4,136.1 530.1,136.7 528.0,136.6 526.4,137.2 525.5,135.0 526.7,131.0 523.4,129.0 518.7,126.0 518.3,125.0 516.8,125.0 514.9,122.6 515.2,120.6 514.0,119.0 513.2,119.1 512.1,117.2 467.9,117.2 467.9,113.7 474.1,109.6 475.0,107.7 477.0,106.4 476.3,104.1 475.4,103.6 474.8,99.9 480.7,98.3 485.9,98.3 488.0,98.7 490.3,100.2 491.7,99.6 496.0,99.7 498.7,98.7 501.5,96.2 503.3,96.2 503.4,92.4 504.3,90.2 502.0,88.7 502.5,87.0 506.5,84.6 508.0,82.6 512.9,78.0 517.4,75.7 524.2,76.0 532.3,75.7Z M455.7,192.0 462.6,192.3 470.4,192.3 507.0,192.2 508.1,197.7 505.3,197.2 504.9,197.8 501.5,198.7 501.0,199.4 498.8,199.6 498.9,200.6 501.6,199.9 502.0,200.5 505.1,199.9 506.0,201.1 507.9,200.6 508.5,203.9 507.9,205.5 506.7,205.7 504.2,209.1 500.8,209.2 500.3,211.5 501.7,213.9 502.9,214.3 500.7,218.2 498.9,217.7 495.7,218.1 493.5,218.9 490.1,221.6 487.3,225.0 485.9,229.4 483.8,228.4 480.2,229.3 468.8,216.2 457.5,216.0 457.7,214.4 456.1,212.1 455.1,212.9 455.0,211.5 442.7,210.8 439.9,211.3 437.8,212.6 434.3,213.5 429.2,213.7 422.2,213.7 422.5,210.4 424.4,210.1 425.2,207.9 427.7,205.8 430.4,205.7 432.9,203.6 435.5,202.9 437.7,199.8 439.1,198.9 439.3,200.2 443.3,197.6 445.1,198.1 446.4,195.6 448.2,194.9 448.7,191.6 455.7,192.0Z M292.7,20.9 294.0,25.2 293.3,27.1 293.6,32.7 294.4,35.3 296.4,40.0 296.7,48.8 297.1,49.4 296.9,53.1 297.8,56.1 299.0,57.6 299.4,63.1 224.2,62.9 224.3,36.6 224.2,20.9 292.7,20.9Z M460.3,117.5 460.3,136.0 458.8,136.7 459.6,138.2 459.5,140.3 458.1,143.6 457.2,148.7 453.3,153.1 452.0,153.7 450.9,152.8 449.8,154.8 448.6,154.7 447.4,157.4 447.6,158.9 446.6,160.2 445.1,158.1 443.2,161.4 443.7,163.5 442.5,164.3 442.1,166.1 439.5,166.4 438.1,164.5 437.0,164.1 436.5,161.8 435.1,162.3 434.0,163.6 430.2,162.6 428.6,163.5 426.4,161.7 423.2,161.1 423.1,159.9 421.0,157.1 417.2,157.1 417.3,137.8 417.3,121.4 430.9,120.9 434.8,122.8 436.1,123.9 437.1,122.8 439.3,125.0 440.6,125.7 445.3,123.9 448.1,124.3 451.0,121.7 455.4,119.2 460.3,117.5Z M264.0,186.0 318.9,186.0 318.9,192.9 320.7,208.1 320.2,232.3 316.3,230.8 315.4,229.2 312.8,227.8 312.1,229.0 309.5,229.0 309.0,228.2 306.6,229.6 305.6,228.8 303.5,229.5 301.5,231.6 300.7,230.4 298.6,229.4 296.4,229.4 295.7,227.8 293.2,230.9 292.4,229.2 291.2,229.7 290.3,228.6 288.0,227.5 286.2,229.3 285.5,227.4 284.0,227.2 283.2,225.7 281.3,225.1 280.0,226.4 279.2,225.3 277.2,225.4 275.0,224.2 273.0,224.4 272.3,221.7 269.1,221.6 267.9,222.0 265.6,219.4 264.8,219.5 264.8,192.9 246.7,192.9 234.7,192.9 234.7,186.0 244.3,186.1 264.0,186.0Z M31.9,59.8 32.9,59.6 35.0,61.0 36.0,62.7 36.5,66.8 41.6,68.4 46.0,66.2 48.8,65.9 52.0,66.7 52.3,67.6 57.8,65.6 59.1,66.3 62.1,65.9 64.5,64.6 68.9,63.4 72.9,63.1 74.3,62.2 95.1,62.3 96.5,64.6 98.8,65.6 99.7,67.5 97.6,71.5 97.0,73.9 95.8,75.6 96.0,76.9 94.9,78.9 93.9,79.4 91.8,84.3 92.6,86.1 94.5,86.4 95.3,87.5 94.0,92.0 94.0,117.2 77.2,117.3 64.2,117.3 53.8,117.3 40.3,117.0 31.7,117.1 21.9,117.2 20.5,115.6 19.7,111.2 19.9,108.1 18.5,105.7 19.5,103.4 20.2,99.7 21.7,95.8 22.3,92.3 23.4,80.6 23.3,79.1 24.3,73.9 24.6,66.8 24.1,62.9 24.6,60.6 28.6,58.6 30.4,60.1 31.9,59.8Z M467.9,113.7 467.9,117.2 512.1,117.2 513.2,119.1 514.0,119.0 515.2,120.6 514.9,122.6 516.8,125.0 518.3,125.0 518.7,126.0 517.4,127.0 516.9,128.5 514.3,131.4 515.2,132.8 513.6,135.2 513.7,136.8 515.0,137.2 515.1,139.0 518.0,141.8 517.5,143.0 514.4,145.2 514.2,146.3 511.5,147.4 509.5,147.0 507.8,148.5 470.8,148.5 460.3,148.5 460.3,136.0 460.3,117.5 462.2,116.7 467.9,113.5Z M553.9,121.6 554.6,124.1 552.6,124.4 553.9,121.6Z M550.5,117.0 552.0,117.0 552.5,120.2 553.6,121.2 552.4,121.0 551.3,123.0 551.0,125.9 547.2,126.5 547.8,125.3 547.8,117.1 550.5,117.0Z M437.8,212.6 439.9,211.3 442.7,210.8 455.0,211.5 455.1,212.9 456.1,212.1 457.7,214.4 457.5,216.0 468.8,216.2 480.2,229.3 478.4,230.0 476.2,232.3 474.1,235.8 473.7,238.7 472.0,240.9 469.7,240.9 469.2,242.6 466.9,244.4 465.5,246.4 463.5,247.2 461.2,249.3 461.0,250.3 458.9,251.4 456.6,254.4 454.3,253.1 454.3,250.8 452.7,247.1 451.3,246.1 451.2,243.2 450.5,240.9 447.8,238.8 446.1,236.3 446.2,234.7 443.5,232.3 442.2,229.8 439.9,228.0 438.3,225.2 438.0,223.6 436.4,220.6 435.4,220.8 432.0,217.9 432.2,216.4 434.3,213.5 437.8,212.6Z M224.2,62.9 299.4,63.1 299.1,64.7 296.4,67.6 298.1,70.2 300.5,71.8 300.5,96.5 299.1,96.8 299.7,98.0 299.4,100.4 300.6,101.7 299.9,102.7 299.5,105.4 298.6,107.5 300.5,110.5 298.7,110.1 298.0,108.1 292.8,105.6 288.0,105.6 286.6,105.3 285.4,106.6 280.2,104.2 279.9,103.5 248.5,103.5 231.5,103.4 224.2,103.4 224.1,76.0 224.2,62.9Z M384.7,192.9 384.5,190.4 386.7,191.0 399.4,190.7 410.5,191.3 412.5,191.1 419.9,191.6 428.5,191.7 448.7,191.6 448.2,194.9 446.4,195.6 445.1,198.1 443.3,197.6 439.3,200.2 439.1,198.9 437.7,199.8 435.5,202.9 432.9,203.6 430.4,205.7 427.7,205.8 425.2,207.9 424.4,210.1 422.5,210.4 422.2,213.7 409.3,213.7 391.7,213.5 383.2,213.6 380.5,213.6 362.1,213.6 363.1,213.2 364.0,210.8 363.9,207.5 365.7,205.2 366.1,203.1 367.6,202.4 367.9,199.8 369.9,196.3 369.8,192.9 371.0,192.9 372.2,192.8 384.7,192.9Z M246.7,192.9 264.8,192.9 264.8,219.5 265.6,219.4 267.9,222.0 269.1,221.6 272.3,221.7 273.0,224.4 275.0,224.2 277.2,225.4 279.2,225.3 280.0,226.4 281.3,225.1 283.2,225.7 284.0,227.2 285.5,227.4 286.2,229.3 288.0,227.5 290.3,228.6 291.2,229.7 292.4,229.2 293.2,230.9 295.7,227.8 296.4,229.4 298.6,229.4 300.7,230.4 301.5,231.6 303.5,229.5 305.6,228.8 306.6,229.6 309.0,228.2 309.5,229.0 312.1,229.0 312.8,227.8 315.4,229.2 316.3,230.8 320.2,232.3 321.2,233.6 323.2,232.9 324.6,233.5 324.6,240.8 324.6,254.9 326.8,257.9 326.9,260.9 329.6,266.5 329.8,269.4 328.8,273.0 327.8,274.4 328.1,276.3 327.4,277.7 328.2,280.4 325.8,285.2 326.7,286.6 325.0,286.7 319.8,288.6 317.9,287.5 317.6,285.2 316.3,286.8 315.4,286.5 314.9,288.4 315.9,289.2 316.1,291.8 314.2,294.5 311.2,297.9 305.1,301.5 304.5,300.9 302.7,301.8 302.7,301.0 300.2,301.6 299.0,299.9 298.3,300.2 301.0,303.8 299.0,304.9 297.2,304.2 296.9,306.7 294.7,309.3 292.4,314.0 290.9,319.0 289.8,318.6 289.5,320.4 290.7,320.0 290.1,323.6 289.4,323.8 289.3,325.8 290.2,326.9 290.5,331.1 291.6,332.5 291.9,335.1 292.8,337.5 289.7,338.9 288.4,337.1 286.1,336.4 282.9,336.6 280.2,334.3 278.2,334.1 276.7,332.3 274.6,331.7 273.1,329.9 272.2,325.8 270.4,323.3 270.6,321.2 269.8,318.9 270.1,317.0 268.8,314.8 267.8,314.6 266.1,312.6 265.5,310.1 264.0,307.9 261.9,306.0 260.8,301.8 259.8,300.7 258.5,297.4 258.1,294.7 256.8,292.7 254.7,291.0 254.2,289.8 252.2,288.7 250.7,285.7 246.3,285.0 243.6,285.2 241.4,284.1 240.9,285.6 238.5,286.0 236.7,288.9 235.6,293.5 233.6,296.3 231.9,296.3 229.5,294.2 223.2,290.8 222.0,289.0 219.6,287.3 217.9,283.4 217.8,279.8 216.1,277.0 215.7,274.5 214.6,272.9 210.7,270.6 208.6,267.4 206.9,266.3 205.1,263.5 202.6,262.1 200.8,258.5 199.3,257.7 198.2,256.2 198.5,254.8 234.1,254.8 234.1,241.0 234.3,227.1 234.3,192.9 246.7,192.9Z M142.8,117.3 154.0,117.2 154.0,131.0 174.1,131.0 174.0,156.8 174.0,168.4 174.1,169.9 174.1,186.0 159.5,185.9 123.9,186.0 123.9,117.3 142.8,117.3Z M550.8,75.7 550.9,77.1 549.5,79.4 550.4,81.6 548.8,84.0 545.4,85.2 545.5,88.6 544.6,89.8 543.7,92.8 542.0,95.6 541.2,101.4 541.3,103.3 540.4,104.1 540.3,106.1 541.2,107.2 533.1,106.9 533.0,105.7 533.3,96.2 531.7,94.0 532.3,92.8 531.4,89.1 532.5,86.3 532.8,83.7 531.9,81.2 532.4,78.6 532.3,75.7 542.7,75.9 550.8,75.7Z M511.7,172.1 513.2,171.8 511.9,174.2 510.6,175.0 509.7,178.2 507.6,183.3 505.9,184.3 505.4,182.5 506.3,178.2 509.0,172.9 511.7,172.1Z M482.1,152.1 487.3,156.7 488.4,154.0 489.9,154.3 491.0,155.4 491.0,157.4 493.1,158.1 494.4,159.4 495.2,161.4 494.3,163.5 493.1,164.1 492.4,166.1 492.8,167.5 495.5,167.1 496.0,169.3 499.5,170.2 500.5,171.9 503.3,173.8 502.0,177.6 503.2,180.6 501.8,182.1 501.6,183.8 502.9,184.9 501.5,186.5 499.4,184.3 499.0,185.1 500.8,186.7 505.7,187.1 507.0,192.2 470.4,192.3 462.6,192.3 455.7,192.0 448.7,191.6 428.7,191.5 434.1,189.5 434.7,188.0 436.6,187.5 436.7,186.3 438.2,185.4 438.2,184.3 441.9,182.3 445.8,178.6 445.6,179.7 447.0,182.1 448.7,183.2 449.9,183.1 451.9,181.3 453.2,182.8 455.8,182.0 460.4,179.4 460.8,180.2 462.5,179.0 462.6,176.5 463.7,174.3 465.5,172.3 466.3,169.8 468.3,167.2 469.1,164.1 470.8,165.9 472.4,166.6 473.5,165.4 475.6,160.5 476.9,161.7 481.5,156.2 482.1,152.1Z M93.9,20.9 93.8,37.9 93.9,56.3 93.7,57.4 95.0,59.8 95.1,62.3 74.3,62.2 72.9,63.1 68.9,63.4 64.5,64.6 62.1,65.9 59.1,66.3 57.8,65.6 52.3,67.6 52.0,66.7 48.8,65.9 46.0,66.2 41.6,68.4 36.5,66.8 36.0,62.7 35.0,61.0 32.9,59.6 31.9,59.8 30.4,60.1 28.6,58.6 26.8,58.0 25.3,58.9 23.4,57.7 23.8,55.8 25.1,54.8 23.0,51.9 21.7,44.5 20.8,43.5 19.7,38.2 17.8,36.2 16.9,32.1 18.0,29.4 20.1,30.7 24.2,32.4 27.0,32.3 29.8,33.0 32.4,32.3 33.7,33.5 36.1,33.5 37.7,36.5 38.9,36.3 39.1,40.3 39.9,44.0 40.8,43.6 39.9,40.5 40.1,37.4 41.8,34.2 40.5,32.9 40.4,30.7 39.4,28.2 39.9,26.4 39.2,24.3 37.6,24.0 36.1,22.4 36.5,20.9 93.9,20.9Z M36.9,30.4 38.2,29.8 38.0,32.6 36.4,31.5 36.9,30.4Z M33.8,26.6 34.9,24.8 36.4,27.0 36.0,28.9 33.7,28.3 33.8,26.6Z M460.3,136.0 460.3,148.5 470.8,148.5 470.7,155.6 472.6,154.3 474.6,152.0 475.9,152.5 477.9,150.4 480.9,151.4 481.3,149.9 482.9,150.0 483.8,148.9 485.5,150.2 487.2,150.2 488.4,154.0 487.3,156.7 482.1,152.1 481.5,156.2 476.9,161.7 475.6,160.5 473.5,165.4 472.4,166.6 470.8,165.9 469.1,164.1 468.3,167.2 466.3,169.8 465.5,172.3 463.7,174.3 462.6,176.5 462.5,179.0 460.8,180.2 460.4,179.4 455.8,182.0 453.2,182.8 451.9,181.3 449.9,183.1 448.7,183.2 447.0,182.1 445.6,179.7 445.8,178.6 444.4,178.4 442.5,176.8 442.0,175.2 440.4,173.2 439.2,170.5 439.5,166.4 442.1,166.1 442.5,164.3 443.7,163.5 443.2,161.4 445.1,158.1 446.6,160.2 447.6,158.9 447.4,157.4 448.6,154.7 449.8,154.8 450.9,152.8 452.0,153.7 453.3,153.1 457.2,148.7 458.1,143.6 459.5,140.3 459.6,138.2 458.8,136.7 460.3,136.0Z M361.0,54.3 362.9,55.2 364.0,57.5 374.3,60.3 378.6,62.3 379.9,61.9 384.2,63.2 385.4,65.0 387.5,66.6 387.3,69.0 386.4,70.9 388.8,71.2 387.8,73.2 389.4,74.6 389.0,76.3 387.1,76.6 385.4,79.7 384.8,81.9 386.0,82.3 387.5,80.9 389.2,78.2 391.2,77.1 392.9,73.6 395.0,72.9 394.8,74.7 393.4,76.3 390.6,82.1 389.8,85.2 389.9,87.5 388.8,88.3 387.9,91.3 388.2,94.0 387.3,95.7 386.1,100.0 386.4,103.4 387.6,106.4 387.2,110.4 377.3,110.4 358.8,110.2 358.1,108.4 354.5,106.9 353.7,104.7 353.4,101.6 354.6,99.9 353.1,98.6 353.0,96.5 352.4,95.0 352.7,92.8 350.8,89.8 349.2,89.2 346.3,86.9 345.9,85.1 342.8,83.6 341.7,82.1 339.6,81.8 337.0,79.4 337.7,74.3 337.5,72.0 338.7,69.9 337.4,68.1 336.2,68.0 336.4,66.0 338.7,63.1 341.6,61.9 342.2,61.1 342.2,53.0 344.2,51.9 345.0,52.5 347.2,52.6 354.2,50.3 356.8,49.0 357.7,50.0 356.3,51.8 359.6,54.1 361.0,54.3Z M173.7,75.9 205.5,75.9 224.1,76.0 224.2,103.4 224.2,130.9 207.4,131.0 185.4,130.9 174.1,131.0 154.0,131.0 154.0,117.2 154.0,83.1 153.9,75.9 173.7,75.9Z";
+const W=620,H=372,PAD=14,LON0=-125,LON1=-66,LAT0=24.5,LAT1=49.5;
+function px(lon){return PAD+(lon-LON0)/(LON1-LON0)*(W-2*PAD);}
+function py(lat){return PAD+(LAT1-lat)/(LAT1-LAT0)*(H-2*PAD);}
+function band(){return document.querySelector('#seg .on').dataset.b;}
+function lerp(a,b,t){return a+(b-a)*t;}
+function color(t){const c1=[200,169,81],c2=[10,34,64];return 'rgb('+Math.round(lerp(c1[0],c2[0],t))+','+Math.round(lerp(c1[1],c2[1],t))+','+Math.round(lerp(c1[2],c2[2],t))+')';}
+const tip=document.getElementById('tip'); let selected=null;
+function compute(){
+  const b=band(), wP=+document.getElementById('w').value/100, wN=1-wP;
+  const mp=+document.getElementById('mp').value, incCO=document.getElementById('co').checked;
+  let rows=DATA.filter(c=>c.people_total>=mp && (incCO||!c.home)).map(c=>{
+    const people=(c[b]||0)+c.grad+c.ug+c.adjunct;
+    const nps=(c.nps_mi==null)?0:Math.max(0,1-Math.min(c.nps_mi,150)/150);
+    return Object.assign({},c,{people:people,nps:nps,lp:Math.log1p(people)});
+  });
+  const lps=rows.map(r=>r.lp),mn=Math.min.apply(null,lps),mx=Math.max.apply(null,lps);
+  rows.forEach(r=>{r.ps=(mx>mn)?(r.lp-mn)/(mx-mn):0; r.score=(wP*r.ps+wN*r.nps)*100;});
+  rows.sort((a,b)=>b.score-a.score); rows.forEach((r,i)=>r.rank=i+1);
+  return rows;
+}
+function render(){
+  document.getElementById('wlbl').textContent='People '+document.getElementById('w').value+'% / NPS '+(100-document.getElementById('w').value)+'%';
+  document.getElementById('mplbl').textContent=document.getElementById('mp').value;
+  const rows=compute(), maxsc=rows.length?rows[0].score:1;
+  const tot=rows.reduce((s,r)=>s+r.people,0);
+  document.getElementById('sum').innerHTML='<b>'+rows.length+'</b> markets &middot; <b>'+tot.toLocaleString()+'</b> people in view';
+  document.getElementById('cnt').textContent='('+rows.length+')';
+  const svg=document.getElementById('map');
+  let s='<path d="'+MAP+'" fill="#FCFAF4" stroke="#D6D0BE" stroke-width="0.7" stroke-linejoin="round"/>';
+  const maxp=Math.max.apply(null,rows.map(r=>r.people).concat([1]));
+  rows.slice().sort((a,b)=>a.people-b.people).forEach(r=>{
+    if(r.lon==null||r.lat==null) return;
+    let x=px(r.lon),y=py(r.lat); if(x<2||x>W-2||y<2||y>H-2) return;
+    const rad=4+Math.sqrt(r.people/maxp)*16, t=r.score/100;
+    s+='<circle class="dot" data-c="'+r.city+'|'+r.state+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="'+color(t)+'" fill-opacity="0.82" stroke="#fff" stroke-width="0.8"></circle>';
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll('.dot').forEach(d=>{
+    d.addEventListener('mousemove',e=>{const p=d.dataset.c.split('|');const r=rows.find(x=>x.city===p[0]&&x.state===p[1]);
+      tip.innerHTML='<b>'+p[0]+', '+p[1]+'</b> &middot; '+r.people+' people &middot; score '+r.score.toFixed(0);
+      tip.style.opacity=1; tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-10)+'px';});
+    d.addEventListener('mouseleave',()=>tip.style.opacity=0);
+    d.addEventListener('click',()=>{selected=d.dataset.c; render(); const el=document.querySelector('.mkt[data-c="'+CSS.escape(d.dataset.c)+'"]'); if(el) el.scrollIntoView({block:'center'});});
+  });
+  const list=document.getElementById('list'); let h='';
+  rows.slice(0,120).forEach(r=>{
+    const olliWhite=(r.olli_mi==null||r.olli_mi>50), sel=(selected===r.city+'|'+r.state)?' sel':'';
+    const npsTxt=(r.nps_mi==null)?'NPS n/a':'NPS ~'+r.nps_mi+' mi';
+    h+='<div class="mkt'+sel+'" data-c="'+r.city+'|'+r.state+'">'+
+      '<div class="crow"><span class="rk">'+r.rank+'</span><span class="cty">'+r.city+', '+r.state+'</span><span class="sc">'+r.score.toFixed(0)+'</span></div>'+
+      '<div class="bar"><i style="width:'+(r.score/maxsc*100).toFixed(0)+'%"></i></div>'+
+      '<div class="chips"><span class="chip al">Alum '+r[band()]+'</span><span class="chip">Grad '+r.grad+'</span><span class="chip">UG '+r.ug+'</span><span class="chip">Adj '+r.adjunct+'</span></div>'+
+      '<div class="meta"><span class="approx">'+npsTxt+'</span><span class="badge '+(olliWhite?'ok':'no')+'">'+(olliWhite?'OLLI white space':'local OLLI')+'</span></div>'+
+      '<button class="researchbtn" data-c="'+r.city+'|'+r.state+'">Research employers + community colleges ▸</button></div>';
+  });
+  list.innerHTML=h;
+  list.querySelectorAll('.mkt').forEach(c=>c.addEventListener('click',()=>{selected=c.dataset.c; render();}));
+  list.querySelectorAll('.researchbtn').forEach(b=>b.addEventListener('click',function(e){e.stopPropagation();var p=b.dataset.c.split('|');openDrill(p[0],p[1]);}));
+}
+document.querySelectorAll('#seg button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render();}));
+['w','mp','co'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+
+/* ---- injected drill-down ---- */
+/* ===== per-market employer + CC research drill-down ===== */
+/* Calls go through your Cloudflare Worker, which holds the API key as a secret
+   env var (ANTHROPIC_API_KEY) and forwards to Anthropic. No key lives in this file.
+   If you ever move Workers, change ENDPOINT below to the new Worker URL. */
+const ENDPOINT="https://dark-credit-4434.bobbie-kite.workers.dev";
+const MODEL="claude-sonnet-4-6";
+function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;"})[c];});}
+function mkEl(html){var t=document.createElement("template");t.innerHTML=html.trim();return t.content.firstChild;}
+
+var overlay=mkEl(
+  '<div id="drill" class="drilloverlay">'+
+    '<div class="drillpanel">'+
+      '<button class="drillclose" aria-label="Close">&times;</button>'+
+      '<div class="printonly" id="printmeta"></div>'+
+      '<div id="drillhead"></div>'+
+      '<div class="drillcols">'+
+        '<div class="drillcol">'+
+          '<div class="dcolhead" style="color:var(--b)">Tuition-reimbursement employers</div>'+
+          '<div id="empbody" class="dbody"></div>'+
+          '<button class="rerun" id="emprerun">Re-run employer search</button>'+
+        '</div>'+
+        '<div class="drillcol">'+
+          '<div class="dcolhead" style="color:var(--c)">Community colleges &middot; transfer partners</div>'+
+          '<div id="ccbody" class="dbody"></div>'+
+          '<button class="rerun" id="ccrerun">Re-run college search</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="drilltools"><button class="printbtn" id="drillprint">Print / save market summary</button></div>'+
+      '<div class="drillnote">Each open fires two live searches (employers, colleges) through your Cloudflare Worker. Leads are starting points, confirm before outreach.</div>'+
+    '</div>'+
+  '</div>'
+);
+document.body.appendChild(overlay);
+overlay.addEventListener("click",function(e){if(e.target===overlay)closeDrill();});
+overlay.querySelector(".drillclose").addEventListener("click",closeDrill);
+function closeDrill(){overlay.classList.remove("open");}
+
+var curMarket=null;
+function openDrill(c,st){
+  var r=DATA.find(function(x){return x.city===c&&x.state===st;});
+  if(!r)return; curMarket=r;
+  var olliWhite=(r.olli_mi==null||r.olli_mi>50);
+  document.getElementById("drillhead").innerHTML=
+    '<div class="dh-city">'+esc(r.city)+', '+esc(r.state)+'</div>'+
+    '<div class="dh-meta">'+
+      '<span class="dh-chip">Alumni '+r[band()]+'</span>'+
+      '<span class="dh-chip">Grad '+r.grad+'</span>'+
+      '<span class="dh-chip">UG '+r.ug+'</span>'+
+      '<span class="dh-chip">Adjunct '+r.adjunct+'</span>'+
+      '<span class="dh-chip">Anchor: '+esc(r.nps_site||"n/a")+(r.nps_mi!=null?" (~"+r.nps_mi+" mi)":"")+'</span>'+
+      '<span class="dh-chip '+(olliWhite?"ok":"no")+'">'+(olliWhite?"OLLI white space":"local OLLI")+'</span>'+
+    '</div>';
+  overlay.classList.add("open");
+  var d=new Date().toLocaleDateString();
+  document.getElementById("printmeta").innerHTML="PSC National Connection Tour &mdash; Market summary &middot; "+esc(r.city)+", "+esc(r.state)+" &middot; "+d;
+  runEmp(r); runCC(r);
+}
+
+function spinner(msg){return '<div class="dspin"><div class="dspinner"></div><span>'+msg+'</span></div>';}
+function dErr(){return '<div class="derr">Search could not run. Check that the Cloudflare Worker is reachable and that its account has web search enabled, then re-run.</div>';}
+function dParse(){return '<div class="derr">The search ran but the response could not be read as data. Re-run to try again.</div>';}
+
+async function callClaude(prompt){
+  var res=await fetch(ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:MODEL,
+      max_tokens:3000,
+      messages:[{role:"user",content:prompt}],
+      tools:[{type:"web_search_20250305",name:"web_search"}]
+    })
+  });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  var data=await res.json();
+  return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
+}
+function parseJSON(txt){
+  var m=txt.replace(/```json/g,"").replace(/```/g,"").trim();
+  var s=m.indexOf("{"), e=m.lastIndexOf("}");
+  if(s<0||e<0) throw new Error("no json");
+  return JSON.parse(m.slice(s,e+1));
+}
+
+var EMP_RULES=
+"We are the University of Denver College of Professional Studies (PSC). We want LOCAL employers in and around the named metro whose employees we can reach (telling the employer our offering exists, plus LinkedIn outreach to employees) to enroll in PSC bachelor's-completion and master's programs at a discounted rate. Selection rules: "+
+"(1) MUST BE LOCAL. The employer must be headquartered in the metro, OR have a large, established local workforce/site there. Do NOT return large national corporations headquartered elsewhere that merely have a branch office in the metro. Concretely, EXCLUDE national giants such as Lockheed Martin, Amazon, Walmart, Target, UnitedHealth, and similar Fortune-500-scale employers. Favor locally or regionally headquartered mid-size employers. "+
+"(2) AVOID companies likely to run tuition benefits through Guild Education or any closed-network education-benefit platform (which includes most very large national employers), because their employees can only spend the benefit inside that network and PSC cannot be the destination school. "+
+"(3) Prefer employers with roughly 50 to 3,000 employees; treat that as a strong preference, since very large employers are usually locked into closed networks. "+
+"(4) The employer should advertise or offer tuition reimbursement of at least $5,250 per year. "+
+"(5) The student only needs to be tuition-benefit ELIGIBLE to qualify for our discount; they do not have to actually use the benefit. We favor employers who clearly believe investing in their workers matters. No MOU is required, though formal partnerships are welcome.";
+
+function runEmp(r){
+  var body=document.getElementById("empbody");
+  body.innerHTML=spinner("Searching local non-Guild employers...");
+  var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 8 qualifying employers that genuinely belong to THIS metro (locally or regionally headquartered, or with a large local workforce). Exclude any national giant headquartered elsewhere. Use web search to verify local presence, tuition-benefit details, and Guild/closed-network status where you can. "+
+    "Respond with ONLY a JSON object, no prose, shaped exactly: "+
+    '{"verified":[{"name":"","sector":"","benefit":"","guild":"not a Guild partner | unknown","local":"","why":"","source":""}],'+
+    '"needs_confirmation":[{"name":"","sector":"","note":"what still needs checking","source":""}]}. '+
+    "Put an employer in needs_confirmation if you cannot confirm the $5,250+ benefit or the Guild status.";
+  callClaude(prompt).then(function(t){
+    var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
+    body.innerHTML=renderEmp(d);
+  }).catch(function(){body.innerHTML=dErr();});
+}
+function renderEmp(d){
+  var h="", v=(d.verified||[]), n=(d.needs_confirmation||[]);
+  if(v.length){h+='<div class="bkt">Verified leads</div>';v.forEach(function(e){
+    h+='<div class="lead"><div class="lead-t"><span>'+esc(e.name)+'</span>'+(e.sector?'<span class="lead-tag">'+esc(e.sector)+'</span>':"")+'</div>'+
+      '<div class="lead-l"><b>Benefit:</b> '+esc(e.benefit||"—")+'</div>'+
+      '<div class="lead-l"><b>Guild:</b> '+esc(e.guild||"unknown")+'</div>'+
+      (e.local?'<div class="lead-l"><b>Local:</b> '+esc(e.local)+'</div>':"")+
+      (e.why?'<div class="lead-l">'+esc(e.why)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(n.length){h+='<div class="bkt nc">Needs confirmation</div>';n.forEach(function(e){
+    h+='<div class="lead nc"><div class="lead-t"><span>'+esc(e.name)+'</span>'+(e.sector?'<span class="lead-tag">'+esc(e.sector)+'</span>':"")+'</div>'+
+      (e.note?'<div class="lead-l">'+esc(e.note)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(!v.length&&!n.length)h='<div class="dempty">No qualifying employers returned. Try re-running.</div>';
+  return h;
+}
+
+var CC_RULES=
+"We are the University of Denver College of Professional Studies (PSC), offering a reduced-credit online bachelor's-completion degree. We want community colleges to partner with as a TRANSFER destination, where their associate graduates finish their bachelor's with PSC. Selection rules: "+
+"(0) Each result MUST be a real community college, junior college, or two-year/technical college: an open-enrollment institution whose primary offering is associate degrees and certificates. Do NOT return four-year universities, private liberal-arts colleges, or institutions that are primarily bachelor's-granting. Verify the institution type before including it. "+
+"(1) PREFER community colleges that do NOT grant their own bachelor's degrees, so PSC complements rather than competes with them. "+
+"(2) SIZE OVERRIDES the no-bachelor rule: a large multi-campus community-college system with high transfer volume (for example Lone Star College in the Houston area) stays on the list even if it grants a few applied bachelor's degrees, because its scale and transfer pipeline outweigh the overlap. It must still be a community-college system, not a university. "+
+"(3) Work radially outward from the metro center. "+
+"(4) RURAL community colleges in the surrounding region are a PRIORITY target, since their students have few local bachelor's options. "+
+"(5) The pitch is a connection to Denver, building affinity and affection for DU.";
+
+function runCC(r){
+  var body=document.getElementById("ccbody");
+  body.innerHTML=spinner("Searching transfer-partner community colleges...");
+  var prompt=CC_RULES+"\n\nMetro / region: "+r.city+", "+r.state+". Find up to 8 community colleges, working outward from the center and including rural colleges in the surrounding region. Use web search to verify whether each grants its own bachelor's degrees and its rough size. "+
+    "Respond with ONLY a JSON object, no prose, shaped exactly: "+
+    '{"verified":[{"name":"","type":"community college | junior college | technical college","location":"","grants_bachelors":"no | yes (kept for size)","size":"","keep_reason":"","denver_angle":"","source":""}],'+
+    '"needs_confirmation":[{"name":"","type":"","location":"","note":"what still needs checking","source":""}]}. '+
+    "Only include an institution in verified if you have confirmed it is a community/two-year college (state which in the type field). A college is verified if it is a non-bachelor-granting two-year college, OR a community-college system large enough that size overrides. Put it in needs_confirmation if you cannot confirm it is a community college, its bachelor's status, or its size.";
+  callClaude(prompt).then(function(t){
+    var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
+    body.innerHTML=renderCC(d);
+  }).catch(function(){body.innerHTML=dErr();});
+}
+function renderCC(d){
+  var h="", v=(d.verified||[]), n=(d.needs_confirmation||[]);
+  if(v.length){h+='<div class="bkt">Verified leads</div>';v.forEach(function(e){
+    var kept=(e.grants_bachelors&&/yes/i.test(e.grants_bachelors));
+    h+='<div class="lead"><div class="lead-t"><span>'+esc(e.name)+'</span>'+
+      (kept?'<span class="lead-tag size">kept for size</span>':'<span class="lead-tag">no bachelor\u2019s</span>')+'</div>'+
+      (e.type?'<div class="lead-l"><b>Type:</b> '+esc(e.type)+'</div>':"")+
+      (e.location?'<div class="lead-l"><b>Where:</b> '+esc(e.location)+'</div>':"")+
+      (e.size?'<div class="lead-l"><b>Size:</b> '+esc(e.size)+'</div>':"")+
+      (e.keep_reason?'<div class="lead-l">'+esc(e.keep_reason)+'</div>':"")+
+      (e.denver_angle?'<div class="lead-l"><b>Denver angle:</b> '+esc(e.denver_angle)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(n.length){h+='<div class="bkt nc">Needs confirmation</div>';n.forEach(function(e){
+    h+='<div class="lead nc"><div class="lead-t"><span>'+esc(e.name)+'</span></div>'+
+      (e.location?'<div class="lead-l">'+esc(e.location)+'</div>':"")+
+      (e.note?'<div class="lead-l">'+esc(e.note)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(!v.length&&!n.length)h='<div class="dempty">No community colleges returned. Try re-running.</div>';
+  return h;
+}
+
+document.getElementById("emprerun").addEventListener("click",function(){if(curMarket)runEmp(curMarket);});
+document.getElementById("ccrerun").addEventListener("click",function(){if(curMarket)runCC(curMarket);});
+document.getElementById("drillprint").addEventListener("click",function(){
+  document.body.classList.add("printing");
+  window.print();
+  setTimeout(function(){document.body.classList.remove("printing");},400);
+});
+
+/* ---- end drill-down ---- */
+
+render();
+})();
+</script>
+
+</body>
+</html>
