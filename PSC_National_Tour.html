@@ -658,7 +658,9 @@ document.querySelectorAll('#seg button').forEach(b=>b.addEventListener('click',(
    env var (ANTHROPIC_API_KEY) and forwards to Anthropic. No key lives in this file.
    If you ever move Workers, change ENDPOINT below to the new Worker URL. */
 const ENDPOINT="https://dark-credit-4434.bobbie-kite.workers.dev";
-const MODEL="claude-sonnet-4-6";
+/* MODEL: Haiku 4.5 keeps cost down ($1/$5 per Mtok). Swap to "claude-sonnet-4-6"
+   for more rigor at ~3x the token cost. */
+const MODEL="claude-haiku-4-5-20251001";
 function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;"})[c];});}
 function mkEl(html){var t=document.createElement("template");t.innerHTML=html.trim();return t.content.firstChild;}
 
@@ -715,15 +717,15 @@ function spinner(msg){return '<div class="dspin"><div class="dspinner"></div><sp
 function dErr(){return '<div class="derr">Search could not run. Check that the Cloudflare Worker is reachable and that its account has web search enabled, then re-run.</div>';}
 function dParse(){return '<div class="derr">The search ran but the response could not be read as data. Re-run to try again.</div>';}
 
-async function callClaude(prompt, maxTokens){
+async function callClaude(prompt, maxTokens, maxUses){
   var res=await fetch(ENDPOINT,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       model:MODEL,
-      max_tokens:maxTokens||3000,
+      max_tokens:maxTokens||1500,
       messages:[{role:"user",content:prompt}],
-      tools:[{type:"web_search_20250305",name:"web_search"}]
+      tools:[{type:"web_search_20250305",name:"web_search",max_uses:(maxUses||4)}]
     })
   });
   if(!res.ok) throw new Error("HTTP "+res.status);
@@ -789,12 +791,12 @@ function runEmp(r, force){
     if(c){ body.innerHTML=stampLine(c.ts,false)+renderEmp(c.data); return; }
   }
   body.innerHTML=spinner("Searching local non-Guild employers...");
-  var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 8 qualifying employers that genuinely belong to THIS metro (locally or regionally headquartered, or with a large local workforce). Exclude any national giant headquartered elsewhere. Use web search to verify local presence, tuition-benefit details, and Guild/closed-network status where you can. "+
+  var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 6 qualifying employers that genuinely belong to THIS metro (locally or regionally headquartered, or with a large local workforce). Exclude any national giant headquartered elsewhere. Use web search to verify local presence, tuition-benefit details, and Guild/closed-network status where you can. "+
     "Respond with ONLY a JSON object, no prose, shaped exactly: "+
     '{"verified":[{"name":"","sector":"","benefit":"","guild":"not a Guild partner | unknown","local":"","why":"","source":""}],'+
     '"needs_confirmation":[{"name":"","sector":"","note":"what still needs checking","source":""}]}. '+
     "Put an employer in needs_confirmation if you cannot confirm the $5,250+ benefit or the Guild status.";
-  callClaude(prompt).then(function(res){
+  callClaude(prompt, 1500, 4).then(function(res){
     var d; try{d=parseJSON(res.text);}catch(err){body.innerHTML=dParse();return;}
     cacheSet(r,"emp",d);
     body.innerHTML=stampLine(Date.now(),true)+renderEmp(d);
@@ -835,12 +837,12 @@ function runCC(r, force){
     if(c){ body.innerHTML=stampLine(c.ts,false)+renderCC(c.data); return; }
   }
   body.innerHTML=spinner("Searching transfer-partner community colleges...");
-  var prompt=CC_RULES+"\n\nMetro / region: "+r.city+", "+r.state+". Find up to 8 community colleges, working outward from the center and including rural colleges in the surrounding region. Use web search to verify whether each grants its own bachelor's degrees and its rough size. "+
+  var prompt=CC_RULES+"\n\nMetro / region: "+r.city+", "+r.state+". Find up to 6 community colleges, working outward from the center and including rural colleges in the surrounding region. Use web search to verify whether each grants its own bachelor's degrees and its rough size. "+
     "Respond with ONLY a JSON object, no prose, shaped exactly: "+
     '{"verified":[{"name":"","type":"community college | junior college | technical college","location":"","grants_bachelors":"no | yes (kept for size)","size":"","keep_reason":"","denver_angle":"","source":""}],'+
     '"needs_confirmation":[{"name":"","type":"","location":"","note":"what still needs checking","source":""}]}. '+
     "Only include an institution in verified if you have confirmed it is a community/two-year college (state which in the type field). A college is verified if it is a non-bachelor-granting two-year college, OR a community-college system large enough that size overrides. Put it in needs_confirmation if you cannot confirm it is a community college, its bachelor's status, or its size.";
-  callClaude(prompt, 6000).then(function(res){
+  callClaude(prompt, 2500, 5).then(function(res){
     var d=null; try{d=parseJSON(res.text);}catch(err){}
     if(d){ cacheSet(r,"cc",d); body.innerHTML=stampLine(Date.now(),true)+renderCC(d); return; }
     var objs=extractObjects(res.text);
@@ -898,7 +900,7 @@ document.getElementById("drillprint").addEventListener("click",function(){
 /* visible build stamp so the right version is verifiable at a glance */
 var vbadge=document.createElement("div");
 vbadge.className="vbadge";
-vbadge.textContent="tool build v8 \u00b7 caching (research once, view free)";
+vbadge.textContent="tool build v9 \u00b7 cost-capped (Haiku + search caps)";
 document.body.appendChild(vbadge);
 
 /* ---- end drill-down ---- */
