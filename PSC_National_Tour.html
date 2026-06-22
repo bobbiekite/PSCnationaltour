@@ -218,6 +218,42 @@
 .fourd .dim{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:16px 12px;text-align:center;color:var(--gold-bright);font-family:'Libre Baskerville',Georgia,serif;font-size:14px;line-height:1.4;display:flex;align-items:center;justify-content:center;}
 @media(max-width:680px){.fourd .dims{grid-template-columns:1fr 1fr;}}
 @media print{.fourd{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;}}
+
+/* ===== per-market employer + CC research drill-down ===== */
+.drilloverlay{position:fixed;inset:0;background:rgba(10,34,64,0.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
+.drilloverlay.open{display:flex;}
+.drillpanel{background:var(--paper);width:min(960px,96vw);max-height:90vh;overflow:auto;border-radius:14px;border-top:5px solid var(--gold-bright);box-shadow:0 20px 60px rgba(10,34,64,0.4);padding:22px 24px 18px;position:relative;}
+.drillclose{position:absolute;top:10px;right:14px;background:none;border:none;font-size:26px;line-height:1;color:var(--slate);cursor:pointer;}
+.drillclose:hover{color:var(--navy);}
+#drillhead .dh-city{font-family:Georgia,'Times New Roman',serif;font-size:24px;color:var(--navy);font-weight:700;}
+#drillhead .dh-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.dh-chip{font-size:11px;background:var(--paper-deep);border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--ink);}
+.dh-chip.ok{background:rgba(30,110,92,0.12);border-color:rgba(30,110,92,0.4);color:var(--a);}
+.dh-chip.no{background:rgba(154,77,58,0.12);border-color:rgba(154,77,58,0.4);color:var(--gate);}
+.drillcols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+@media(max-width:760px){.drillcols{grid-template-columns:1fr;}}
+.dcolhead{font-size:12px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:8px;border-bottom:2px solid var(--line);padding-bottom:6px;}
+.dbody{min-height:60px;}
+.bkt{font-size:10.5px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--a);margin:10px 0 6px;}
+.bkt.nc{color:var(--c);}
+.lead{background:#fff;border:1px solid var(--line);border-left:3px solid var(--b);border-radius:8px;padding:9px 11px;margin-bottom:8px;}
+.lead.nc{border-left-color:var(--c);background:var(--paper-deep);}
+.lead-t{font-weight:700;font-size:13.5px;color:var(--navy);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.lead-tag{font-size:10px;font-weight:600;color:var(--slate);background:var(--paper-deep);border-radius:10px;padding:2px 7px;white-space:nowrap;}
+.lead-tag.size{background:rgba(200,169,81,0.22);color:var(--c);}
+.lead-l{font-size:12px;color:var(--ink);margin-top:3px;line-height:1.42;}
+.lead-s{font-size:10.5px;color:var(--slate);margin-top:4px;word-break:break-word;}
+.rerun{margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:11.5px;padding:6px 12px;cursor:pointer;}
+.rerun:hover{background:var(--navy-soft);}
+.dspin{display:flex;align-items:center;gap:10px;color:var(--slate);font-size:12.5px;padding:10px 2px;}
+.dspinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--gold-bright);border-radius:50%;animation:dsp 0.8s linear infinite;flex:none;}
+@keyframes dsp{to{transform:rotate(360deg);}}
+.derr{font-size:12px;color:var(--gate);background:rgba(154,77,58,0.08);border:1px solid rgba(154,77,58,0.3);border-radius:8px;padding:10px;line-height:1.45;}
+.dempty{font-size:12px;color:var(--slate);padding:8px 2px;}
+.drillnote{font-size:10.5px;color:var(--slate);margin-top:14px;border-top:1px solid var(--line);padding-top:10px;line-height:1.5;}
+#tool .researchbtn{font-size:10.5px;color:#fff;background:var(--gold);border:none;font-weight:600;margin-top:5px;border-radius:5px;padding:5px 9px;cursor:pointer;}
+#tool .researchbtn:hover{background:var(--gold-bright);}
+
 </style>
 </head>
 <body>
@@ -588,13 +624,183 @@ function render(){
       '<div class="bar"><i style="width:'+(r.score/maxsc*100).toFixed(0)+'%"></i></div>'+
       '<div class="chips"><span class="chip al">Alum '+r[band()]+'</span><span class="chip">Grad '+r.grad+'</span><span class="chip">UG '+r.ug+'</span><span class="chip">Adj '+r.adjunct+'</span></div>'+
       '<div class="meta"><span class="approx">'+npsTxt+'</span><span class="badge '+(olliWhite?'ok':'no')+'">'+(olliWhite?'OLLI white space':'local OLLI')+'</span></div>'+
-      '<div class="research">Employers + CCs: research at shortlist</div></div>';
+      '<button class="researchbtn" data-c="'+r.city+'|'+r.state+'">Research employers + community colleges ▸</button></div>';
   });
   list.innerHTML=h;
   list.querySelectorAll('.mkt').forEach(c=>c.addEventListener('click',()=>{selected=c.dataset.c; render();}));
+  list.querySelectorAll('.researchbtn').forEach(b=>b.addEventListener('click',function(e){e.stopPropagation();var p=b.dataset.c.split('|');openDrill(p[0],p[1]);}));
 }
 document.querySelectorAll('#seg button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render();}));
 ['w','mp','co'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+
+/* ---- injected drill-down ---- */
+/* ===== per-market employer + CC research drill-down ===== */
+/* Calls go through your Cloudflare Worker, which holds the API key as a secret
+   env var (ANTHROPIC_API_KEY) and forwards to Anthropic. No key lives in this file.
+   If you ever move Workers, change ENDPOINT below to the new Worker URL. */
+const ENDPOINT="https://dark-credit-4434.bobbie-kite.workers.dev";
+const MODEL="claude-sonnet-4-6";
+function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;"})[c];});}
+function mkEl(html){var t=document.createElement("template");t.innerHTML=html.trim();return t.content.firstChild;}
+
+var overlay=mkEl(
+  '<div id="drill" class="drilloverlay">'+
+    '<div class="drillpanel">'+
+      '<button class="drillclose" aria-label="Close">&times;</button>'+
+      '<div id="drillhead"></div>'+
+      '<div class="drillcols">'+
+        '<div class="drillcol">'+
+          '<div class="dcolhead" style="color:var(--b)">Tuition-reimbursement employers</div>'+
+          '<div id="empbody" class="dbody"></div>'+
+          '<button class="rerun" id="emprerun">Re-run employer search</button>'+
+        '</div>'+
+        '<div class="drillcol">'+
+          '<div class="dcolhead" style="color:var(--c)">Community colleges &middot; transfer partners</div>'+
+          '<div id="ccbody" class="dbody"></div>'+
+          '<button class="rerun" id="ccrerun">Re-run college search</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="drillnote">Each open fires two live searches (employers, colleges) through your Cloudflare Worker. Leads are starting points, confirm before outreach.</div>'+
+    '</div>'+
+  '</div>'
+);
+document.body.appendChild(overlay);
+overlay.addEventListener("click",function(e){if(e.target===overlay)closeDrill();});
+overlay.querySelector(".drillclose").addEventListener("click",closeDrill);
+function closeDrill(){overlay.classList.remove("open");}
+
+var curMarket=null;
+function openDrill(c,st){
+  var r=DATA.find(function(x){return x.city===c&&x.state===st;});
+  if(!r)return; curMarket=r;
+  var olliWhite=(r.olli_mi==null||r.olli_mi>50);
+  document.getElementById("drillhead").innerHTML=
+    '<div class="dh-city">'+esc(r.city)+', '+esc(r.state)+'</div>'+
+    '<div class="dh-meta">'+
+      '<span class="dh-chip">Alumni '+r[band()]+'</span>'+
+      '<span class="dh-chip">Grad '+r.grad+'</span>'+
+      '<span class="dh-chip">UG '+r.ug+'</span>'+
+      '<span class="dh-chip">Adjunct '+r.adjunct+'</span>'+
+      '<span class="dh-chip">Anchor: '+esc(r.nps_site||"n/a")+(r.nps_mi!=null?" (~"+r.nps_mi+" mi)":"")+'</span>'+
+      '<span class="dh-chip '+(olliWhite?"ok":"no")+'">'+(olliWhite?"OLLI white space":"local OLLI")+'</span>'+
+    '</div>';
+  overlay.classList.add("open");
+  runEmp(r); runCC(r);
+}
+
+function spinner(msg){return '<div class="dspin"><div class="dspinner"></div><span>'+msg+'</span></div>';}
+function dErr(){return '<div class="derr">Search could not run. Check that the Cloudflare Worker is reachable and that its account has web search enabled, then re-run.</div>';}
+function dParse(){return '<div class="derr">The search ran but the response could not be read as data. Re-run to try again.</div>';}
+
+async function callClaude(prompt){
+  var res=await fetch(ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:MODEL,
+      max_tokens:3000,
+      messages:[{role:"user",content:prompt}],
+      tools:[{type:"web_search_20250305",name:"web_search"}]
+    })
+  });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  var data=await res.json();
+  return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
+}
+function parseJSON(txt){
+  var m=txt.replace(/```json/g,"").replace(/```/g,"").trim();
+  var s=m.indexOf("{"), e=m.lastIndexOf("}");
+  if(s<0||e<0) throw new Error("no json");
+  return JSON.parse(m.slice(s,e+1));
+}
+
+var EMP_RULES=
+"We are the University of Denver College of Professional Studies (PSC). We want LOCAL employers in and around the named metro whose employees we can reach (telling the employer our offering exists, plus LinkedIn outreach to employees) to enroll in PSC bachelor's-completion and master's programs at a discounted rate. Selection rules: "+
+"(1) AVOID companies that partner with Guild Education, or any closed-network education-benefit administrator, because their employees can only spend the benefit inside that network and PSC cannot be the destination school. Prefer employers NOT routed through such a network. "+
+"(2) The employer should advertise or offer tuition reimbursement of at least $5,250 per year. "+
+"(3) Prefer locally rooted employers with a real workforce presence in the metro (headquarters or a large local site), not national chains. "+
+"(4) The student only needs to be tuition-benefit ELIGIBLE to qualify for our discount; they do not have to actually use the benefit. We favor employers who clearly believe investing in their workers matters. No MOU is required, though formal partnerships are welcome.";
+
+function runEmp(r){
+  var body=document.getElementById("empbody");
+  body.innerHTML=spinner("Searching local non-Guild employers...");
+  var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 8 qualifying employers. Use web search to verify tuition-benefit details and Guild status where you can. "+
+    "Respond with ONLY a JSON object, no prose, shaped exactly: "+
+    '{"verified":[{"name":"","sector":"","benefit":"","guild":"not a Guild partner | unknown","local":"","why":"","source":""}],'+
+    '"needs_confirmation":[{"name":"","sector":"","note":"what still needs checking","source":""}]}. '+
+    "Put an employer in needs_confirmation if you cannot confirm the $5,250+ benefit or the Guild status.";
+  callClaude(prompt).then(function(t){
+    var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
+    body.innerHTML=renderEmp(d);
+  }).catch(function(){body.innerHTML=dErr();});
+}
+function renderEmp(d){
+  var h="", v=(d.verified||[]), n=(d.needs_confirmation||[]);
+  if(v.length){h+='<div class="bkt">Verified leads</div>';v.forEach(function(e){
+    h+='<div class="lead"><div class="lead-t"><span>'+esc(e.name)+'</span>'+(e.sector?'<span class="lead-tag">'+esc(e.sector)+'</span>':"")+'</div>'+
+      '<div class="lead-l"><b>Benefit:</b> '+esc(e.benefit||"—")+'</div>'+
+      '<div class="lead-l"><b>Guild:</b> '+esc(e.guild||"unknown")+'</div>'+
+      (e.local?'<div class="lead-l"><b>Local:</b> '+esc(e.local)+'</div>':"")+
+      (e.why?'<div class="lead-l">'+esc(e.why)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(n.length){h+='<div class="bkt nc">Needs confirmation</div>';n.forEach(function(e){
+    h+='<div class="lead nc"><div class="lead-t"><span>'+esc(e.name)+'</span>'+(e.sector?'<span class="lead-tag">'+esc(e.sector)+'</span>':"")+'</div>'+
+      (e.note?'<div class="lead-l">'+esc(e.note)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(!v.length&&!n.length)h='<div class="dempty">No qualifying employers returned. Try re-running.</div>';
+  return h;
+}
+
+var CC_RULES=
+"We are the University of Denver College of Professional Studies (PSC), offering a reduced-credit online bachelor's-completion degree. We want community colleges to partner with as a TRANSFER destination, where their associate graduates finish their bachelor's with PSC. Selection rules: "+
+"(1) PREFER community colleges that do NOT grant their own bachelor's degrees, so PSC complements rather than competes with them. "+
+"(2) SIZE OVERRIDES the no-bachelor rule: a large multi-campus system with high transfer volume (for example Lone Star College in the Houston area) stays on the list even if it grants some bachelor's degrees, because its scale and transfer pipeline outweigh the overlap. "+
+"(3) Work radially outward from the metro center. "+
+"(4) RURAL community colleges in the surrounding region are a PRIORITY target, since their students have few local bachelor's options. "+
+"(5) The pitch is a connection to Denver, building affinity and affection for DU.";
+
+function runCC(r){
+  var body=document.getElementById("ccbody");
+  body.innerHTML=spinner("Searching transfer-partner community colleges...");
+  var prompt=CC_RULES+"\n\nMetro / region: "+r.city+", "+r.state+". Find up to 8 community colleges, working outward from the center and including rural colleges in the surrounding region. Use web search to verify whether each grants its own bachelor's degrees and its rough size. "+
+    "Respond with ONLY a JSON object, no prose, shaped exactly: "+
+    '{"verified":[{"name":"","location":"","grants_bachelors":"no | yes (kept for size)","size":"","keep_reason":"","denver_angle":"","source":""}],'+
+    '"needs_confirmation":[{"name":"","location":"","note":"what still needs checking","source":""}]}. '+
+    "A college is verified if it is non-bachelor-granting, OR it grants bachelor's but is large enough that size overrides. Put it in needs_confirmation if you cannot confirm bachelor's status or size.";
+  callClaude(prompt).then(function(t){
+    var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
+    body.innerHTML=renderCC(d);
+  }).catch(function(){body.innerHTML=dErr();});
+}
+function renderCC(d){
+  var h="", v=(d.verified||[]), n=(d.needs_confirmation||[]);
+  if(v.length){h+='<div class="bkt">Verified leads</div>';v.forEach(function(e){
+    var kept=(e.grants_bachelors&&/yes/i.test(e.grants_bachelors));
+    h+='<div class="lead"><div class="lead-t"><span>'+esc(e.name)+'</span>'+
+      (kept?'<span class="lead-tag size">kept for size</span>':'<span class="lead-tag">no bachelor\u2019s</span>')+'</div>'+
+      (e.location?'<div class="lead-l"><b>Where:</b> '+esc(e.location)+'</div>':"")+
+      (e.size?'<div class="lead-l"><b>Size:</b> '+esc(e.size)+'</div>':"")+
+      (e.keep_reason?'<div class="lead-l">'+esc(e.keep_reason)+'</div>':"")+
+      (e.denver_angle?'<div class="lead-l"><b>Denver angle:</b> '+esc(e.denver_angle)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(n.length){h+='<div class="bkt nc">Needs confirmation</div>';n.forEach(function(e){
+    h+='<div class="lead nc"><div class="lead-t"><span>'+esc(e.name)+'</span></div>'+
+      (e.location?'<div class="lead-l">'+esc(e.location)+'</div>':"")+
+      (e.note?'<div class="lead-l">'+esc(e.note)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });}
+  if(!v.length&&!n.length)h='<div class="dempty">No community colleges returned. Try re-running.</div>';
+  return h;
+}
+
+document.getElementById("emprerun").addEventListener("click",function(){if(curMarket)runEmp(curMarket);});
+document.getElementById("ccrerun").addEventListener("click",function(){if(curMarket)runCC(curMarket);});
+
+/* ---- end drill-down ---- */
+
 render();
 })();
 </script>
