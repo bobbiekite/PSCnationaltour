@@ -270,6 +270,8 @@
 @media print{.vbadge{display:none !important;}}
 .diaginfo{font-family:Consolas,Menlo,monospace;font-size:10.5px;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:5px;padding:6px 8px;margin:8px 0;}
 .diagraw{font-family:Consolas,Menlo,monospace;font-size:10.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:5px;padding:8px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-word;line-height:1.4;}
+.stamp{font-size:10.5px;color:var(--slate);margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed var(--line);}
+.stamp .muted{color:var(--slate);}
 
 </style>
 </head>
@@ -670,12 +672,12 @@ var overlay=mkEl(
         '<div class="drillcol">'+
           '<div class="dcolhead" style="color:var(--b)">Tuition-reimbursement employers</div>'+
           '<div id="empbody" class="dbody"></div>'+
-          '<button class="rerun" id="emprerun">Re-run employer search</button>'+
+          '<button class="rerun" id="emprerun">Refresh (live search)</button>'+
         '</div>'+
         '<div class="drillcol">'+
           '<div class="dcolhead" style="color:var(--c)">Community colleges &middot; transfer partners</div>'+
           '<div id="ccbody" class="dbody"></div>'+
-          '<button class="rerun" id="ccrerun">Re-run college search</button>'+
+          '<button class="rerun" id="ccrerun">Refresh (live search)</button>'+
         '</div>'+
       '</div>'+
       '<div class="drilltools"><button class="printbtn" id="drillprint">Print / save market summary</button></div>'+
@@ -758,6 +760,20 @@ function dDiag(res){
     '<div class="diagraw">'+raw+'</div></div>';
 }
 
+/* ---- per-market browser cache: research once, view free forever ---- */
+var CACHE_PREFIX="pscmm:";
+function cacheKey(r,side){return CACHE_PREFIX+side+":"+r.city+"|"+r.state;}
+function cacheGet(r,side){
+  try{var raw=localStorage.getItem(cacheKey(r,side)); return raw?JSON.parse(raw):null;}catch(e){return null;}
+}
+function cacheSet(r,side,data){
+  try{localStorage.setItem(cacheKey(r,side),JSON.stringify({data:data,ts:Date.now()}));}catch(e){}
+}
+function fmtDate(ts){try{return new Date(ts).toLocaleDateString();}catch(e){return "";}}
+function stampLine(ts,fresh){
+  return '<div class="stamp">Researched '+fmtDate(ts)+' \u00b7 <span class="muted">'+(fresh?"live just now, now cached":"cached \u2014 free to view")+'. Use Refresh for a fresh live pull.</span></div>';
+}
+
 var EMP_RULES=
 "We are the University of Denver College of Professional Studies (PSC). We want LOCAL employers in and around the named metro whose employees we can reach (telling the employer our offering exists, plus LinkedIn outreach to employees) to enroll in PSC bachelor's-completion and master's programs at a discounted rate. Selection rules: "+
 "(1) MUST BE LOCAL. The employer must be headquartered in the metro, OR have a large, established local workforce/site there. Do NOT return large national corporations headquartered elsewhere that merely have a branch office in the metro. Concretely, EXCLUDE national giants such as Lockheed Martin, Amazon, Walmart, Target, UnitedHealth, and similar Fortune-500-scale employers. Favor locally or regionally headquartered mid-size employers. "+
@@ -766,8 +782,12 @@ var EMP_RULES=
 "(4) The employer should advertise or offer tuition reimbursement of at least $5,250 per year. "+
 "(5) The student only needs to be tuition-benefit ELIGIBLE to qualify for our discount; they do not have to actually use the benefit. We favor employers who clearly believe investing in their workers matters. No MOU is required, though formal partnerships are welcome.";
 
-function runEmp(r){
+function runEmp(r, force){
   var body=document.getElementById("empbody");
+  if(!force){
+    var c=cacheGet(r,"emp");
+    if(c){ body.innerHTML=stampLine(c.ts,false)+renderEmp(c.data); return; }
+  }
   body.innerHTML=spinner("Searching local non-Guild employers...");
   var prompt=EMP_RULES+"\n\nMetro: "+r.city+", "+r.state+". Find up to 8 qualifying employers that genuinely belong to THIS metro (locally or regionally headquartered, or with a large local workforce). Exclude any national giant headquartered elsewhere. Use web search to verify local presence, tuition-benefit details, and Guild/closed-network status where you can. "+
     "Respond with ONLY a JSON object, no prose, shaped exactly: "+
@@ -776,7 +796,8 @@ function runEmp(r){
     "Put an employer in needs_confirmation if you cannot confirm the $5,250+ benefit or the Guild status.";
   callClaude(prompt).then(function(res){
     var d; try{d=parseJSON(res.text);}catch(err){body.innerHTML=dParse();return;}
-    body.innerHTML=renderEmp(d);
+    cacheSet(r,"emp",d);
+    body.innerHTML=stampLine(Date.now(),true)+renderEmp(d);
   }).catch(function(){body.innerHTML=dErr();});
 }
 function renderEmp(d){
@@ -807,8 +828,12 @@ var CC_RULES=
 "(4) RURAL community colleges in the surrounding region are a PRIORITY target, since their students have few local bachelor's options. "+
 "(5) The pitch is a connection to Denver, building affinity and affection for DU.";
 
-function runCC(r){
+function runCC(r, force){
   var body=document.getElementById("ccbody");
+  if(!force){
+    var c=cacheGet(r,"cc");
+    if(c){ body.innerHTML=stampLine(c.ts,false)+renderCC(c.data); return; }
+  }
   body.innerHTML=spinner("Searching transfer-partner community colleges...");
   var prompt=CC_RULES+"\n\nMetro / region: "+r.city+", "+r.state+". Find up to 8 community colleges, working outward from the center and including rural colleges in the surrounding region. Use web search to verify whether each grants its own bachelor's degrees and its rough size. "+
     "Respond with ONLY a JSON object, no prose, shaped exactly: "+
@@ -817,9 +842,9 @@ function runCC(r){
     "Only include an institution in verified if you have confirmed it is a community/two-year college (state which in the type field). A college is verified if it is a non-bachelor-granting two-year college, OR a community-college system large enough that size overrides. Put it in needs_confirmation if you cannot confirm it is a community college, its bachelor's status, or its size.";
   callClaude(prompt, 6000).then(function(res){
     var d=null; try{d=parseJSON(res.text);}catch(err){}
-    if(d){ body.innerHTML=renderCC(d); return; }
+    if(d){ cacheSet(r,"cc",d); body.innerHTML=stampLine(Date.now(),true)+renderCC(d); return; }
     var objs=extractObjects(res.text);
-    if(objs.length){ body.innerHTML='<div class="bkt">Salvaged leads (response was long; re-run for the clean set)</div>'+renderCCList(objs); return; }
+    if(objs.length){ var sd={verified:objs,needs_confirmation:[]}; cacheSet(r,"cc",sd); body.innerHTML=stampLine(Date.now(),true)+'<div class="bkt">Salvaged leads (response was long; Refresh for the clean set)</div>'+renderCCList(objs); return; }
     body.innerHTML=dDiag(res);
   }).catch(function(){body.innerHTML=dErr();});
 }
@@ -862,8 +887,8 @@ function renderCC(d){
   return h;
 }
 
-document.getElementById("emprerun").addEventListener("click",function(){if(curMarket)runEmp(curMarket);});
-document.getElementById("ccrerun").addEventListener("click",function(){if(curMarket)runCC(curMarket);});
+document.getElementById("emprerun").addEventListener("click",function(){if(curMarket)runEmp(curMarket,true);});
+document.getElementById("ccrerun").addEventListener("click",function(){if(curMarket)runCC(curMarket,true);});
 document.getElementById("drillprint").addEventListener("click",function(){
   document.body.classList.add("printing");
   window.print();
@@ -873,7 +898,7 @@ document.getElementById("drillprint").addEventListener("click",function(){
 /* visible build stamp so the right version is verifiable at a glance */
 var vbadge=document.createElement("div");
 vbadge.className="vbadge";
-vbadge.textContent="tool build v7 \u00b7 college diagnostic + salvage";
+vbadge.textContent="tool build v8 \u00b7 caching (research once, view free)";
 document.body.appendChild(vbadge);
 
 /* ---- end drill-down ---- */
