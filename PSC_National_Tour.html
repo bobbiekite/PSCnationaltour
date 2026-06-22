@@ -266,6 +266,10 @@
   body.printing .drillcols{grid-template-columns:1fr 1fr;}
   body.printing .lead{break-inside:avoid;}
 }
+.vbadge{position:fixed;right:10px;bottom:10px;z-index:9998;background:var(--navy);color:#fff;font-size:10px;letter-spacing:0.3px;padding:4px 9px;border-radius:6px;opacity:0.9;font-family:Arial,Helvetica,sans-serif;box-shadow:0 2px 8px rgba(10,34,64,0.3);}
+@media print{.vbadge{display:none !important;}}
+.diaginfo{font-family:Consolas,Menlo,monospace;font-size:10.5px;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:5px;padding:6px 8px;margin:8px 0;}
+.diagraw{font-family:Consolas,Menlo,monospace;font-size:10.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:5px;padding:8px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-word;line-height:1.4;}
 
 </style>
 </head>
@@ -709,26 +713,49 @@ function spinner(msg){return '<div class="dspin"><div class="dspinner"></div><sp
 function dErr(){return '<div class="derr">Search could not run. Check that the Cloudflare Worker is reachable and that its account has web search enabled, then re-run.</div>';}
 function dParse(){return '<div class="derr">The search ran but the response could not be read as data. Re-run to try again.</div>';}
 
-async function callClaude(prompt){
+async function callClaude(prompt, maxTokens){
   var res=await fetch(ENDPOINT,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       model:MODEL,
-      max_tokens:3000,
+      max_tokens:maxTokens||3000,
       messages:[{role:"user",content:prompt}],
       tools:[{type:"web_search_20250305",name:"web_search"}]
     })
   });
   if(!res.ok) throw new Error("HTTP "+res.status);
   var data=await res.json();
-  return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
+  var content=data.content||[];
+  var text=content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
+  return {text:text, stop:data.stop_reason, types:content.map(function(b){return b.type;})};
 }
 function parseJSON(txt){
   var m=txt.replace(/```json/g,"").replace(/```/g,"").trim();
   var s=m.indexOf("{"), e=m.lastIndexOf("}");
   if(s<0||e<0) throw new Error("no json");
   return JSON.parse(m.slice(s,e+1));
+}
+/* salvage: pull every complete {...} object that has a name, even from a truncated/messy reply */
+function extractObjects(txt){
+  var objs=[], stack=[], inStr=false, escp=false, i, ch;
+  for(i=0;i<txt.length;i++){
+    ch=txt[i];
+    if(inStr){ if(escp){escp=false;} else if(ch==="\\"){escp=true;} else if(ch==='"'){inStr=false;} continue; }
+    if(ch==='"'){inStr=true;continue;}
+    if(ch==='{'){stack.push(i);}
+    else if(ch==='}'&&stack.length){ var st=stack.pop(); try{var o=JSON.parse(txt.slice(st,i+1)); if(o&&o.name)objs.push(o);}catch(err){} }
+  }
+  return objs;
+}
+/* shows what actually came back when parsing fails, so we can see the real cause */
+function dDiag(res){
+  var t=(res&&res.text)?res.text:"";
+  var info="stop reason: "+esc((res&&res.stop)||"?")+" \u00b7 blocks returned: "+esc(((res&&res.types)||[]).join(", ")||"none");
+  var raw=t?esc(t.slice(0,1500)):"(no text was returned \u2014 the model used its whole budget on web searches before writing an answer)";
+  return '<div class="derr">Could not read the college results as data. Here is exactly what came back, so we can see why:'+
+    '<div class="diaginfo">'+info+'</div>'+
+    '<div class="diagraw">'+raw+'</div></div>';
 }
 
 var EMP_RULES=
@@ -747,8 +774,8 @@ function runEmp(r){
     '{"verified":[{"name":"","sector":"","benefit":"","guild":"not a Guild partner | unknown","local":"","why":"","source":""}],'+
     '"needs_confirmation":[{"name":"","sector":"","note":"what still needs checking","source":""}]}. '+
     "Put an employer in needs_confirmation if you cannot confirm the $5,250+ benefit or the Guild status.";
-  callClaude(prompt).then(function(t){
-    var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
+  callClaude(prompt).then(function(res){
+    var d; try{d=parseJSON(res.text);}catch(err){body.innerHTML=dParse();return;}
     body.innerHTML=renderEmp(d);
   }).catch(function(){body.innerHTML=dErr();});
 }
@@ -788,10 +815,29 @@ function runCC(r){
     '{"verified":[{"name":"","type":"community college | junior college | technical college","location":"","grants_bachelors":"no | yes (kept for size)","size":"","keep_reason":"","denver_angle":"","source":""}],'+
     '"needs_confirmation":[{"name":"","type":"","location":"","note":"what still needs checking","source":""}]}. '+
     "Only include an institution in verified if you have confirmed it is a community/two-year college (state which in the type field). A college is verified if it is a non-bachelor-granting two-year college, OR a community-college system large enough that size overrides. Put it in needs_confirmation if you cannot confirm it is a community college, its bachelor's status, or its size.";
-  callClaude(prompt).then(function(t){
-    var d; try{d=parseJSON(t);}catch(err){body.innerHTML=dParse();return;}
-    body.innerHTML=renderCC(d);
+  callClaude(prompt, 6000).then(function(res){
+    var d=null; try{d=parseJSON(res.text);}catch(err){}
+    if(d){ body.innerHTML=renderCC(d); return; }
+    var objs=extractObjects(res.text);
+    if(objs.length){ body.innerHTML='<div class="bkt">Salvaged leads (response was long; re-run for the clean set)</div>'+renderCCList(objs); return; }
+    body.innerHTML=dDiag(res);
   }).catch(function(){body.innerHTML=dErr();});
+}
+function renderCCList(arr){
+  var h="";
+  arr.forEach(function(e){
+    var kept=(e.grants_bachelors&&/yes/i.test(e.grants_bachelors));
+    h+='<div class="lead"><div class="lead-t"><span>'+esc(e.name)+'</span>'+
+      (kept?'<span class="lead-tag size">kept for size</span>':(e.grants_bachelors?'<span class="lead-tag">no bachelor\u2019s</span>':""))+'</div>'+
+      (e.type?'<div class="lead-l"><b>Type:</b> '+esc(e.type)+'</div>':"")+
+      (e.location?'<div class="lead-l"><b>Where:</b> '+esc(e.location)+'</div>':"")+
+      (e.size?'<div class="lead-l"><b>Size:</b> '+esc(e.size)+'</div>':"")+
+      (e.keep_reason?'<div class="lead-l">'+esc(e.keep_reason)+'</div>':"")+
+      (e.denver_angle?'<div class="lead-l"><b>Denver angle:</b> '+esc(e.denver_angle)+'</div>':"")+
+      (e.note?'<div class="lead-l">'+esc(e.note)+'</div>':"")+
+      (e.source?'<div class="lead-s">'+esc(e.source)+'</div>':"")+'</div>';
+  });
+  return h;
 }
 function renderCC(d){
   var h="", v=(d.verified||[]), n=(d.needs_confirmation||[]);
@@ -823,6 +869,12 @@ document.getElementById("drillprint").addEventListener("click",function(){
   window.print();
   setTimeout(function(){document.body.classList.remove("printing");},400);
 });
+
+/* visible build stamp so the right version is verifiable at a glance */
+var vbadge=document.createElement("div");
+vbadge.className="vbadge";
+vbadge.textContent="tool build v7 \u00b7 college diagnostic + salvage";
+document.body.appendChild(vbadge);
 
 /* ---- end drill-down ---- */
 
